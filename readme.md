@@ -94,14 +94,19 @@ You can integrate the system in a few ways
 ### USING THE PREFAB
 
 1. Make sure that the scene is in flying order.
-2. Load the prefab into the scene, put it in the root transform and make sure it's placed at Position 0,0,0.
-3. Place every aircraft, map objects, and anything that has to be involved in the 'mapObject' or 'map' transform.
-4. Each of the aircraft involved will need these to be configured:
+	![illust1](images/editor1.PNG)
+3. Load the prefab into the scene, put it in the root transform and make sure it's placed at Position 0,0,0.
+4. Place every aircraft, map objects, and anything that has to be involved in the 'mapObject' or 'map' transform.
+	![illust2](images/hierarchylist1.png)
+6. Each of the aircraft involved will need these to be configured:
 
 	* Creating the OWMLScript GameObject (ZHK_OpenWorldMovementLogicScript)
 		- Create an Empty GameObject at the root of the aircraft object; Name it "OWMLScript". Add a component named "ZHK_OpenWorldMovementLogicScript".
+			![illust3](images/owml_search.PNG)
 		- Assign Engine Control with your aircraft's SaccAirVehicle Object.
+			![illust4](images/owml_engine_controller.PNG)
 		- Assign UIScript with the scene's UIObject (ZHK_UIScript)
+			![illust5](images/owml_uiscriptassign.PNG)
 		- Assign Target Parent with the scene's PlayerParent Object based on the prefab or scene.
 		- Assign Original Parent with the aircraft's Parent Transform Object (The one that is the parent of the SaccEntity / Entity Control.)
 		- Assign Vehicle Rigid Body with the aircraft's Rigidbody Component.
