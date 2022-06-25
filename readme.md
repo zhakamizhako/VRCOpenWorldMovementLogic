@@ -18,6 +18,8 @@ You will lose:
 
 You will probably need to:
 >	- Optimize without Static objects
+>	- Remove the 'static' option on affected objects
+>	- Optimize using LODs
 
 
 # Changelog 
@@ -37,6 +39,20 @@ You will probably need to:
 - Added OWML_Station (Per Player station manager & Synchronization)
 - Improved Respawn Handler
 ```
+# What is OWML?
+**O**pen **W**orld **M**ovement **L**ogic is an extension for Sacc Flight and Vehicles that allows you to travel further than the usual limitations of VRChat. An ordinary SaccFlight map can only handle up to 40km x 40km from the center of the map all the way to the edge and everything will start to jitter.
+
+OWML overcomes this by using a certain implementation called **origin point shifting**. ([Reference](https://www.youtube.com/watch?v=mXTxQko-JH0&t=5s))
+
+How it works is basically moving the map hierarchy as you cross the certain distance limit, shifting you back and teleporting the map according to the distance you have travelled while in the background, the synchronization does its job.
+
+How the player synchronization works is it needs a player manager, a VRC Station to each player, and a controller on each VRCStation in order to adapt and synchronize each player according to their offset of their current position and the map.
+
+Aircraft synchronization also is dependent on how far it is based on the map offset as well.
+[add further details]
+
+Other features covering outside SaccFlight may come in the future.
+
 # SETUP
 
 
@@ -108,22 +124,32 @@ You can integrate the system in a few ways
 		- Assign UIScript with the scene's UIObject (ZHK_UIScript)
 			![illust5](images/owml_uiscriptassign.PNG)
 		- Assign Target Parent with the scene's PlayerParent Object based on the prefab or scene.
+			![targetparent](images/target_parent.PNG)
 		- Assign Original Parent with the aircraft's Parent Transform Object (The one that is the parent of the SaccEntity / Entity Control.)
+			![originparent](images/original-parent.PNG)
 		- Assign Vehicle Rigid Body with the aircraft's Rigidbody Component.
+			![rigidbody](images/rigidbody.PNG)
 		- Assign the Sacc Sync Object with the SyncScript_OWML that we will be creating after this step.
-
+			
 	* Creating the SyncScript_OWML (SAV_SyncScript_OWML)
 		- Create an Empty GameObject at the root of the aircraft Object; Name it "SyncScript_OWML". Add a component named "SAV_SyncScript_OWML".
+			![syncscriptowml](images/sync_owml.PNG)
 		- Assign the SAV Control. You may follow the existing SyncScript's parameters.
+			![syncsav](images/sync_sav.PNG)
 		- Assign the OWML with the created OWMLScript object that we have created earlier.
+			![assign_owml_sync](images/assign_owml_sync.PNG)
 		- Go back to the OWMLScript, assign the Sacc Sync Object with this created SyncScript_OWML.
+			![assign_sync_owml](images/assign_sync_owml.PNG)
 
 	* Assign and remove necessary and involved UdonBehaviours, Udon Extension Behaviours
 		- In the Aircraft object that you are currently modifying, a SyncScript gameobject should already exist (not the SyncScript_OWML we've just created). Disable it.
+		![disable_sync_script](images/disable_sync_script.PNG)
 		- Remove the script from the list of Udon Extension Behaviours that is inside the Entity Controller (Parent/Rigidbody of the aircraft)
-		- Add the scripts involved in the Udon Extension Behaviours that is inside the Entity Controller. As follows:
-		    - SyncScript_OWML
-		    - OWMLScript
+		- Add the scripts involved in the Udon Extension Behaviours that is inside the Entity Controller. Order is important so do in order:
+		    1. SyncScript_OWML
+		    2. OWMLScript
+
+	![assignCCC](images/udonassign.PNG)
 
 	* Configuring HUDController to use HUDController_OWML
 		- Inside your aircraft vehicle, navigate your InVehicleOnly (Or wherever your HUDController is located)
@@ -131,6 +157,7 @@ You can integrate the system in a few ways
 		- Assign HB Old with the old HUDController Object
 		- Assign OWML with the OWMLScript that we have created.
 		- Leave all the parameters empty; Unless if you are planning to use this as a permanent HUDController.
+			![hud](images/hudcontroller.PNG)
 	* Configure each particle systems that uses World Simulation space
 	    - Change each ParticleSystem's Simulation space to Custom, and the Custom Simulation Space to the **MapObject**
 	    - Names of the particles may as follows
@@ -151,6 +178,7 @@ You can use the scene (OWML_Test) as your basis, example or when making the worl
 
 ## Making from scratch
 - Will be documented in the future
+- Please, dont.
 
 
 
