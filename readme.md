@@ -17,10 +17,13 @@ You will lose:
 >	- Static Batching
 
 You will probably need to:
+>	- Backup your project before applying.
 >	- Optimize without Static objects
 >	- Remove the 'static' option on affected objects
 >	- Optimize using LODs
 
+
+Please make a backup of your project before applying this system to your project. I will not be held responsible if you didn't backup and anything will ruin your project.
 
 # Changelog 
 ```
