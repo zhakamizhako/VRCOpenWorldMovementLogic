@@ -181,7 +181,23 @@ You can use the scene (OWML_Test) as your basis, example or when making the worl
 - Please, dont.
 
 
+## FAQ
+- Why do i see floating objects from spawn if i fly further?
+	- The following may be the reasons why:
+	- You may have forgotten to remove 'static' from other gameobjects. Please uncheck Static on these objects. An easy fix would be selecting everything, check static, then uncheck static and apply it for the child objects.
+	- These objects may be not under the Map Object. Please put these objects under the Map Object.
 
+- Why are my particles weird whenever i fly further?
+	- Please check if these particles' Simulation Space are in **Custom** and if the Custom Simulation Space in the **Map Object**
+
+- Why are my weapons (AAM, AGM, Bombs) acting weird as I fire them and fly further?
+	- Please check DFUNC_AAM, DFUNC_AGM, DFUNC_BOMB on your aircrafts and make sure the World Parent is set to **Map Object**
+
+- Why is it still jiggly?
+	- Please check whether if the OWMLScript is in the Udon Extension Behaviours list in the Sacc Entity. Make sure that you are not missing any of the required parameters.
+
+- Why is x x x x ?
+	- Please contact me via Discord: ZhakamiZhako#2147 or Twitter: @ZZhako 
 ---
 
 Map - Contains your 'map'. Make sure you place all your aircraft, terrains, airbases and everything that has to be involved that is part of the 'map' inside.
