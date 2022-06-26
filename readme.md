@@ -6,6 +6,8 @@ Discord: ZhakamiZhako#2147
 
 VRC: Zhakami Zhako
 
+For more extensions and if you want to support me, you may support me through Ko-Fi: https://ko-fi.com/zhakamizhako
+
 Any concerns, please feel free to contact me. 
 
 
@@ -90,7 +92,7 @@ PlayerUI
 Spawn
 ```
 
-## STEPS TO SETUP WORLD WITH OWML FROM SCRATCH
+## STEPS TO SETUP WORLD WITH OWML
 
 REQUIREMENTS:
 
@@ -109,6 +111,7 @@ You can integrate the system in a few ways
 
 ### USING THE PREFAB
 
+This will apply for both creating  a world from scratch and for worlds that needs to adapt the OWML.
 1. Make sure that the scene is in flying order.
 	![illust1](images/editor1.PNG)
 3. Load the prefab into the scene, put it in the root transform and make sure it's placed at Position 0,0,0.
@@ -118,31 +121,42 @@ You can integrate the system in a few ways
 
 	* Creating the OWMLScript GameObject (ZHK_OpenWorldMovementLogicScript)
 		- Create an Empty GameObject at the root of the aircraft object; Name it "OWMLScript". Add a component named "ZHK_OpenWorldMovementLogicScript".
+		
 			![illust3](images/owml_search.PNG)
 		- Assign Engine Control with your aircraft's SaccAirVehicle Object.
+		
 			![illust4](images/owml_engine_controller.PNG)
 		- Assign UIScript with the scene's UIObject (ZHK_UIScript)
+		
 			![illust5](images/owml_uiscriptassign.PNG)
 		- Assign Target Parent with the scene's PlayerParent Object based on the prefab or scene.
+		
 			![targetparent](images/target_parent.PNG)
 		- Assign Original Parent with the aircraft's Parent Transform Object (The one that is the parent of the SaccEntity / Entity Control.)
+		
 			![originparent](images/original-parent.PNG)
 		- Assign Vehicle Rigid Body with the aircraft's Rigidbody Component.
+		
 			![rigidbody](images/rigidbody.PNG)
 		- Assign the Sacc Sync Object with the SyncScript_OWML that we will be creating after this step.
 			
 	* Creating the SyncScript_OWML (SAV_SyncScript_OWML)
 		- Create an Empty GameObject at the root of the aircraft Object; Name it "SyncScript_OWML". Add a component named "SAV_SyncScript_OWML".
+		
 			![syncscriptowml](images/sync_owml.PNG)
 		- Assign the SAV Control. You may follow the existing SyncScript's parameters.
+		
 			![syncsav](images/sync_sav.PNG)
 		- Assign the OWML with the created OWMLScript object that we have created earlier.
+		
 			![assign_owml_sync](images/assign_owml_sync.PNG)
 		- Go back to the OWMLScript, assign the Sacc Sync Object with this created SyncScript_OWML.
+		
 			![assign_sync_owml](images/assign_sync_owml.PNG)
 
 	* Assign and remove necessary and involved UdonBehaviours, Udon Extension Behaviours
 		- In the Aircraft object that you are currently modifying, a SyncScript gameobject should already exist (not the SyncScript_OWML we've just created). Disable it.
+		
 		![disable_sync_script](images/disable_sync_script.PNG)
 		- Remove the script from the list of Udon Extension Behaviours that is inside the Entity Controller (Parent/Rigidbody of the aircraft)
 		- Add the scripts involved in the Udon Extension Behaviours that is inside the Entity Controller. Order is important so do in order:
@@ -157,6 +171,7 @@ You can integrate the system in a few ways
 		- Assign HB Old with the old HUDController Object
 		- Assign OWML with the OWMLScript that we have created.
 		- Leave all the parameters empty; Unless if you are planning to use this as a permanent HUDController.
+		
 			![hud](images/hudcontroller.PNG)
 	* Configure each particle systems that uses World Simulation space
 	    - Change each ParticleSystem's Simulation space to Custom, and the Custom Simulation Space to the **MapObject**
@@ -177,8 +192,7 @@ You can use the scene (OWML_Test) as your basis, example or when making the worl
 
 
 ## Making from scratch
-- Will be documented in the future
-- Please, dont.
+- Will be documented in the next few releases. For now, please dont.
 
 
 ## FAQ
@@ -195,18 +209,22 @@ You can use the scene (OWML_Test) as your basis, example or when making the worl
 
 - Why is it still jiggly?
 	- Please check whether if the OWMLScript is in the Udon Extension Behaviours list in the Sacc Entity. Make sure that you are not missing any of the required parameters.
+	
+- Can I implement teleportation?
+    - Teleportation is currently experimental at the moment. 
 
 - Why is x x x x ?
 	- Please contact me via Discord: ZhakamiZhako#2147 or Twitter: @ZZhako 
 ---
+## Notes
 
-Map - Contains your 'map'. Make sure you place all your aircraft, terrains, airbases and everything that has to be involved that is part of the 'map' inside.
+**Map** - Contains your 'map'. Make sure you place all your aircraft, terrains, airbases and everything that has to be involved that is part of the 'map' inside.
 
-PlayerParent - This will be the target parent object of an aircraft once you've entered in an aircraft. Make sure it is assigned here when you setup OWML from scratch on your aircrafts (as Target Parent)
+**PlayerParent** - This will be the target parent object of an aircraft once you've entered in an aircraft. Make sure it is assigned here when you setup OWML from scratch on your aircrafts (as Target Parent)
 
-PlayerUI - Insert PlayerUIScript in here. It will be one of the global scripts that will manage your local player.
+**PlayerUI** - Insert PlayerUIScript in here. It will be one of the global scripts that will manage your local player.
 
-Spawn - Insert the ZHK_PlayerRespawnHandler in here. This will serve as the player's reset trigger when respawning. An important note is this MUST NOT BE INSIDE THE MAP OBJECT as it will alter the player's original spawn coordinates and may cause undesirable results.
+**Spawn** - Insert the ZHK_PlayerRespawnHandler in here. This will serve as the player's reset trigger when respawning. An important note is this MUST NOT BE INSIDE THE MAP OBJECT as it will alter the player's original spawn coordinates and may cause undesirable results.
 
 ---
 ## Components
@@ -264,22 +282,28 @@ The components here below are merely descriptions and a table of 'requirements'.
 |Yes|Yes|Can Use Station from station| Set to true.
 |Yes|Yes|Disable Station Exit| Set to false.
 
+## Enhancement Components
 
+**ZHK_CullGroup**
 
-**Todo:**
-```
+This tool allows you to auto disable specific objects according to distance.
 
+|Item| Description |
+|---|---|
+|Render Distance|Distance from player towards the objects.|
+|Cull Angle|Applicable if you want to make objects disabled when they're away from your view. It is a little experimental; set to 180 for all angles. For more advanced culling, use LOD's instead.
+|Cull Objects| Objects you want to cull.
+|Use For Each|Check through the items every frame. May be expensive.
+|Wait Timer|Time before the script starts checking upon loading the world.
 
-Enhancement Components
+**ZHK_IsKinematicGroup**
 
-ZHK_CullGroup
-	Render Distance		- Distance to allow rendering these objects. Further than that will disable the gameobjects that's more than this limit.
-	Cull Angle		- Applicable if you want to make objects disabled when they're away from your view.
-	Cull Objects		- The List of objects you want to disable. It is suggested that you place the terrains in here, and in the terrains contains the airports. Do not place the aircrafts in here; The aircrafts will no longer function properly when disabled. If you want to optimize it, disable only the heavy components of the aircraft but NOT the following: SyncScript, Main Object itself.
-	
-	Use Foreach		- Do the increment per frame? Or per call? 
-	Wait timer		- Time before the culling starts
+This tool allows you to auto 'static' aircrafts when you are further away from them. 
 
-ZHK_IsKinematicGroup		- Should serve the same as ZHK_CullGroup but only applies to Rigidbodies. Your aircrafts can be in this list. (But not the hitboxes)
-```
+|Item| Description |
+|---|---|
+|Render Distance|Distance from player towards the Rigidbodies
+|RigidBodies| Assign here your aircrafts that will be involved with it. |
+|Use For Each|Check through the items every frame. May be expensive.
+|Wait Timer|Time before the script starts checking upon loading the world.
 
