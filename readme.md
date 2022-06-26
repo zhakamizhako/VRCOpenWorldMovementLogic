@@ -1,5 +1,7 @@
 # ZHK DLC - Open World Movement Logic Package Extension for SaccFlight 1.5~ and onwards
 
+Licensing: https://creativecommons.org/licenses/by-nc/4.0/
+
 Twitter: [@ZZhako](https://twitter.com/ZZhako)
 
 Discord: ZhakamiZhako#2147
@@ -199,7 +201,12 @@ This will apply for both creating  a world from scratch and for worlds that need
 6. Update the VRCSceneDescriptor's respawn height
 	- Set the respawn height to a reasonable, ridiculous amount in order to bypass the respawn height. (e.g. 999999)
 		![descriptor](images/scenedescriptor.PNG)
-8. Test. Optimize. Remove any unnecessary objects. 
+		
+7. Set the Spawn area to the same object as ZHK_RespawnHandler
+	- Refer to the prefab of the spawn object. Make sure the VRCSceneDescriptor points to that spawn.
+	
+
+9. Test. Optimize. Remove any unnecessary objects. 
 
 ## Using the Scene
 
