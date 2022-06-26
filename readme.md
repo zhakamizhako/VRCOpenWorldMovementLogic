@@ -157,7 +157,8 @@ You can integrate the system in a few ways
 		- Assign HB Old with the old HUDController Object
 		- Assign OWML with the OWMLScript that we have created.
 		- Leave all the parameters empty; Unless if you are planning to use this as a permanent HUDController.
-			![hud](images/hudcontroller.PNG)
+		![hud](images/hudcontroller.PNG)
+		
 	* Configure each particle systems that uses World Simulation space
 	    - Change each ParticleSystem's Simulation space to Custom, and the Custom Simulation Space to the **MapObject**
 	    - Names of the particles may as follows
@@ -167,8 +168,17 @@ You can integrate the system in a few ways
 	        - Flares, Flares (1) (EffectsController/Flares)
 	        - GunParticle_Other, GunParticle_Pilot, GunParticle_Smoke (EffectsController)
 	        - Any other ParticleSystem that may need to be inside the MapObject.
+	        ![particle](images/ParticleSystem.PNG)
+		
+	* Configure each weapon system to use the Map Space
+		- In your aircraft, navigate to DialFunctions/R/DFUNC_AAM and/or DFUNC_AGM and/or DFUNC_BOMB
+		- Assign **World Parent** to the **Map Object**
+		![dfunc_worldParent](images/dfunc_worldParent2.PNG)
+		
 5. Assign the SyncScripts Involved in the UIScript.
     - You must add every single SyncScript_OWML inside the Sacc Sync List in UIScript.
+    ![saccsync](images/UIscript_saccsync.PNG)
+	
 6. Test. Optimize. Remove any unnecessary objects. 
 
 ## Using the Scene
