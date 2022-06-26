@@ -184,11 +184,19 @@ This will apply for both creating  a world from scratch and for worlds that need
 	        - Any other ParticleSystem that may need to be inside the MapObject.
 	        
 		![particlesystem](images/ParticleSystem.PNG)
+	* Configure each weapons to use the world space
+		- Navigate through your Aircraft/DialFunctions/R/DFUNC_AAM or DFUNC_AGM or DFUNC_Bomb, assign the **World Parent** with the **MapObject**
+		![dfunc](images/weapons_dfunc.PNG)
+		
+		
 5. Assign the SyncScripts Involved in the UIScript.
     - You must add every single SyncScript_OWML inside the Sacc Sync List in UIScript.
 
 		![syncscript](images/UIscript_saccsync.PNG)
-6. Test. Optimize. Remove any unnecessary objects. 
+6. Update the VRCSceneDescriptor's respawn height
+	- Set the respawn height to a reasonable, ridiculous amount in order to bypass the respawn height. (e.g. 999999)
+		![descriptor](images/scenedescriptor.PNG)
+8. Test. Optimize. Remove any unnecessary objects. 
 
 ## Using the Scene
 
@@ -244,15 +252,15 @@ The components here below are merely descriptions and a table of 'requirements'.
 |No|Yes|Chunk Distance|Allows you to set the distance for each 'chunk' of the map. Default value is 3000 (meters). Increasing this may result to floating point errors, and reducing it may result to a constant chunk call. Balance it accordingly. 
 |No|No|Skybox|Sky settings for procedural skybox. If you don't have procedural skybox, please don't use this
 |No|No|Base Atmos|The base value for the atmosphere thinning value. It will be automatically be set as you hit play.
-|No|No|Atmosphere Dark Start|
-|No|No|Atmosphere Dark Max|
-|No|No|Show Debug Player Pos|
-|||Sync Even In Vehicle
-|||Allow Player OWML
-|Yes|Yes|Sacc Sync List| yada yada yada
-|No|No|Player Update rate|
-|No|No|Recheck Interval|
-|No|No|Use Atmosphere|
+|No|No|Atmosphere Dark Start| Minimum altitude for the atmosphere darkening (For procedural Skybox)
+|No|No|Atmosphere Dark Max| Maximum Altitude for the atmosphere darkening (For Procedural Skybox)
+|No|No|Show Debug Player Pos| Enabling this will display a gameobject that represents the synchronization of the VRCStations.
+|||Sync Even In Vehicle|This will allow synchronization of the players despite being inside the vehicle. May be network expensive. 
+|||Allow Player OWML| This will allow the world movement system even when on foot. 
+|Yes|Yes|Sacc Sync List| Place every single SyncScript_OWML that is existing in the scene in order to properly update the aircrat list.
+|No|No|Player Update rate| The update rate for players to send their position in seconds
+|No|No|Recheck Interval| This will be applicable for players joining a little late as an emergency network call to ask the instance owner to have them assign a station.
+|No|No|Use Atmosphere| This will enable/disable Sacchan's Atmosphere Thinning on the air vehicles. Either disable this for space vehicles, or include a ridiculous amount on the vehicles themselves.
 
 **ZHK_OpenWorldMovementLogicScript**
 
