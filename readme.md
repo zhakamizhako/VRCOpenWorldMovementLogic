@@ -182,8 +182,12 @@ This will apply for both creating  a world from scratch and for worlds that need
 	        - Flares, Flares (1) (EffectsController/Flares)
 	        - GunParticle_Other, GunParticle_Pilot, GunParticle_Smoke (EffectsController)
 	        - Any other ParticleSystem that may need to be inside the MapObject.
+	        
+		![particlesystem](images/ParticleSystem.PNG)
 5. Assign the SyncScripts Involved in the UIScript.
     - You must add every single SyncScript_OWML inside the Sacc Sync List in UIScript.
+
+		![syncscript](images/UIscript_saccsync.PNG)
 6. Test. Optimize. Remove any unnecessary objects. 
 
 ## Using the Scene
