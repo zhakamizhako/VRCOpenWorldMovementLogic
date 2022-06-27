@@ -234,7 +234,7 @@ You can use the scene (OWML_Test) as your basis, example or when making the worl
 	- Please check whether if the OWMLScript is in the Udon Extension Behaviours list in the Sacc Entity. Make sure that you are not missing any of the required parameters.
 	
 - Can I implement teleportation?
-    - Teleportation is currently experimental at the moment. 
+    - Teleportation is currently experimental at the moment due to the way how the system works. An enhancement script will be provided over time.
 
 - Why is x x x x ?
 	- Please contact me via Discord: ZhakamiZhako#2147 or Twitter: @ZZhako 
