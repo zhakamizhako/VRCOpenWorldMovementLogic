@@ -56,7 +56,6 @@ How it works is basically moving the map hierarchy as you cross the certain dist
 How the player synchronization works is it needs a player manager, a VRC Station to each player, and a controller on each VRCStation in order to adapt and synchronize each player according to their offset of their current position and the map.
 
 Aircraft synchronization also is dependent on how far it is based on the map offset as well.
-[add further details]
 
 Other features covering outside SaccFlight may come in the future.
 
@@ -102,7 +101,7 @@ Spawn
 REQUIREMENTS:
 
 - VRCSDK3-WORLD-2022.06.03.00.03_Public or onwards
-- UdonSharp_v1.0.0b12 or Udonsharp v 1.0.1 from the CreatorCompanion
+- UdonSharp_v1.0.0b12 or Udonsharp v 1.0.1 from the CreatorCompanion or onwards. (1.0 beta's should still work; Below 1.0 may have problems.)
 - CyanEmu or VRChat Client Simulator 1.1.3
 - SaccFlightAndVehicles latest commit (97252921158388ace978797e374cda42974ebd48) or onwards. (Download the latest commit via https://github.com/Sacchan-VRC/SaccFlightAndVehicles.git extract the whole master folder to your assets.)
 	
