@@ -1,7 +1,5 @@
 # ZHK DLC - Open World Movement Logic Package Extension for SaccFlight 1.5~ and onwards
 
-Licensing: https://creativecommons.org/licenses/by-nc/4.0/
-
 Twitter: [@ZZhako](https://twitter.com/ZZhako)
 
 Discord: ZhakamiZhako#2147
