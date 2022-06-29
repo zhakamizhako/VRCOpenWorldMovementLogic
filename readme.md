@@ -18,13 +18,19 @@ Any concerns, please feel free to contact me.
 
 Before using this system; Note the downsides.
 
-You will lose:
->	- Static Batching
+Please note the following:
+>	- You will not be able to use Static Batching.
+>	- Objects using VRCObjectSync may have a problem due to its nature of using global coordinates
 
 You will probably need to:
 >	- Optimize without Static objects
 >	- Remove the 'static' option on affected objects
 >	- Optimize using LODs
+>	- Switch a synchronization method for objects using Object Sync or wait for a while.
+
+
+Todo
+>	- Create a script or workaround for objects involving object sync
 
 
 # Changelog 
