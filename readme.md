@@ -20,7 +20,6 @@ Before using this system; Note the downsides.
 
 Please note the following:
 >	- You will not be able to use Static Batching.
->	- Objects using VRCObjectSync may have a problem due to its nature of using global coordinates
 
 You will probably need to:
 >	- Optimize without Static objects
