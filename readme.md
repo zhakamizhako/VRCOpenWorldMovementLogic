@@ -64,41 +64,6 @@ Other features covering outside SaccFlight may come in the future.
 
 # SETUP
 
-
-You can use directly the prefab provided or the one in the sample scene. If there is a need to setup from scratch, you may refer below.
-```
-(Root Level)
-Map
-	Terrains
-	    Terrain1
-	        Airbase1
-	        (etc.)
-	    Terrain2
-	        Airbase2
-	        ...
-        ...
-        TerrainXX
-	Aircraft
-		Plane1
-			(Standard SaccFlight Setup)
-		Plane2
-		...
-		PlaneX
-	PlayerOWML Controller
-		ZHKStations
-			ZHK_Station (1)
-			ZHK_Station (2)
-			...
-			ZHK_Station (80)
-	...
-	(Etc parts of your map)
-PlayerParent
-PlayerUI
-	EmptyTransform
-	(Enhancements)
-Spawn
-```
-
 ## STEPS TO SETUP WORLD WITH OWML
 
 REQUIREMENTS:
@@ -219,7 +184,63 @@ You can use the scene (OWML_Test) as your basis, example or when making the worl
 
 
 ## Making from scratch
-- Will be documented in the next few releases. For now, please dont.
+
+If there is an immediate need to create everything from scratch, you will need to setup your hierarchy this way.
+```
+(Root Level)
+Map
+	Terrains
+	    Terrain1
+	        Airbase1
+	        (etc.)
+	    Terrain2
+	        Airbase2
+	        ...
+        ...
+        TerrainXX
+	Aircraft
+		Plane1
+			(Standard SaccFlight Setup)
+		Plane2
+		...
+		PlaneX
+	PlayerOWML Controller
+		ZHKStations
+			ZHK_Station (1)
+			ZHK_Station (2)
+			...
+			ZHK_Station (80)
+	...
+	(Etc parts of your map)
+PlayerParent
+PlayerUI
+	EmptyTransform
+	(Enhancements)
+Spawn
+```
+
+You will need to do these following steps.
+
+1.	Create a GameObject, name it UIScript. Assign a ZHK_UIScript. This will serve as your 'global' state controller for the OWML.
+2.	Create a GameObject, name it Map. Make sure it is placed on (0, 0, 0) Keep in mind that this will be your 'map' or the object that serves to be 'moved' around once OWML is enabled. This is where you are supposed to place your 'play space'.
+	-	Assign the Map in it.
+4.	Create another GameObject, make sure it is not parented to anything. Name it PlayerParent. This will serve as the transform where your aircraft will be automatically be parented on whenever you enter it. 
+5.	Another GameObject, name it Player Manager. Assign a ZHK_OWML_Player. This will serve as the OWML Player Manager.
+	-	Parent this thing under Map
+	-	Assign the UIScript to your recently created ZHK_UIScript.
+6.	Create another GameObject, assign ZHK_OWML_Station to it.
+	-	Assign the UI Script to it
+	-	Assign the player controller to it. 
+	-	Add a VRC Station on this very same object, assign the StationObject to itself.
+7.	Duplicate ZHK_OWML_Station 79 times (total of 80 stations)
+8.	Assign the Stations in the Player Manager.
+
+**Caution: instructions still wip, will add photo references.**
+
+For the rest, follow the steps in on setting up the prefab from steps 4 ~ 9.
+
+
+---
 
 
 ## FAQ
