@@ -237,7 +237,7 @@ You will need to do these following steps.
 
 **Caution: instructions still wip, will add photo references.**
 
-For the rest, follow the steps in on setting up the prefab from steps 4 ~ 9.
+For the rest, follow the steps on setting up the prefab from steps 4 ~ 9.
 
 
 ---
