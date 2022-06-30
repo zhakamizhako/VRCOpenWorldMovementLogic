@@ -103,10 +103,10 @@ Spawn
 
 REQUIREMENTS:
 
-- VRCSDK3-WORLD-2022.06.03.00.03_Public or onwards
-- UdonSharp_v1.0.0b12 or Udonsharp v 1.0.1 from the CreatorCompanion or onwards. (1.0 beta's should still work; Below 1.0 may have problems.)
-- CyanEmu or VRChat Client Simulator 1.1.3
-- SaccFlightAndVehicles latest commit (97252921158388ace978797e374cda42974ebd48) or onwards. (Download the latest commit via https://github.com/Sacchan-VRC/SaccFlightAndVehicles.git extract the whole master folder to your assets.)
+- VRCSDK3-WORLD-2022.06.03.00.03_Public or onwards (https://vrchat.com/home/download)
+- UdonSharp_v1.0.0b12 or Udonsharp v 1.0.1 from the CreatorCompanion or onwards. (1.0 beta's should still work; Below 1.0 may have problems.) (Download via https://vrchat.com/home/download)
+- CyanEmu or VRChat Client Simulator 1.1.3 (Check Creator Companion)
+- SaccFlightAndVehicles latest commit (97252921158388ace978797e374cda42974ebd48) or onwards. (Download the latest commit via https://github.com/Sacchan-VRC/SaccFlightAndVehicles.git extract the whole master folder to your assets, or wait until 1.6 releases)
 - OWML (Get from releases, https://github.com/zhakamizhako/VRCOpenWorldMovementLogic/releases)
 	
 	
@@ -239,6 +239,10 @@ You can use the scene (OWML_Test) as your basis, example or when making the worl
 	
 - Can I implement teleportation?
     - Teleportation is currently experimental at the moment due to the way how the system works. An enhancement script will be provided over time.
+
+- Why do I see a spam of UdonSharp Errors saying Source C# Script on xxxxx (UdonSharp.UdonSharpProgramAsset) is null?
+    - It could be that you've downloaded the entire repository instead of using the releases tag. Please use the release [here.](https://github.com/zhakamizhako/VRCOpenWorldMovementLogic/releases)
+    - You forgot to migrate your project to the new Udonsharp. This project however, has been tested with the new releases of UdonSharp & VRCSDK.
 
 - Why is x x x x ?
 	- Please contact me via Discord: ZhakamiZhako#2147 or Twitter: @ZZhako 
