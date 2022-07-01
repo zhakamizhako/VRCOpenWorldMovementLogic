@@ -20,12 +20,14 @@ Before using this system; Note the downsides.
 
 Please note the following:
 >	- You will not be able to use Static Batching.
+>	- Avatar bones will go crazy when walking in **vast** terrain
 
 You will probably need to:
 >	- Optimize without Static objects
 >	- Remove the 'static' option on affected objects
 >	- Optimize using LODs
 >	- Switch a synchronization method for objects using Object Sync or wait for a while.
+>	- Make small colliders on parts where you are expected to walk.
 
 
 Todo
@@ -267,6 +269,10 @@ For the rest, follow the steps on setting up the prefab from steps 4 ~ 9.
 
 - Why is x x x x ?
 	- Please contact me via Discord: ZhakamiZhako#2147 or Twitter: @ZZhako 
+
+- Why is my avatar shaking really badly when I'm walking around a large terrain tile?
+	- This is caused by a different kind of floating point error for avatar bones on **HUGE** colliders. A workaround for it would be placing smaller box colliders on the areas where you expect people to walk (e.g. airports, tarmac, runways.). 
+
 ---
 ## Notes
 
