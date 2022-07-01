@@ -251,11 +251,20 @@ For the rest, follow the steps on setting up the prefab from steps 4 ~ 9.
 	- You may have forgotten to remove 'static' from other gameobjects. Please uncheck Static on these objects. An easy fix would be selecting everything, check static, then uncheck static and apply it for the child objects.
 	- These objects may be not under the Map Object. Please put these objects under the Map Object.
 
+- My plane randomly respawns as I dive!
+	- You forgot to set the respawn height. Select the VRC Scene Descriptor, set the respawn height to -9999999. 
+
 - Why are my particles weird whenever i fly further?
 	- Please check if these particles' Simulation Space are in **Custom** and if the Custom Simulation Space in the **Map Object**
 
 - Why are my weapons (AAM, AGM, Bombs) acting weird as I fire them and fly further?
 	- Please check DFUNC_AAM, DFUNC_AGM, DFUNC_BOMB on your aircrafts and make sure the World Parent is set to **Map Object**
+
+- Why do I see capsules following other players?
+	- You might've left the **Show Debug Player Pos** checked in the UIScript. Uncheck it.
+
+- Why is my avatar shaking really badly when I'm walking around a large terrain tile?
+	- This is caused by a different kind of floating point error for avatar bones on **HUGE** colliders. A workaround for it would be placing smaller box colliders on the areas where you expect people to walk (e.g. airports, tarmac, runways.). 
 
 - Why is it still jiggly?
 	- Please check whether if the OWMLScript is in the Udon Extension Behaviours list in the Sacc Entity. Make sure that you are not missing any of the required parameters.
@@ -270,8 +279,6 @@ For the rest, follow the steps on setting up the prefab from steps 4 ~ 9.
 - Why is x x x x ?
 	- Please contact me via Discord: ZhakamiZhako#2147 or Twitter: @ZZhako 
 
-- Why is my avatar shaking really badly when I'm walking around a large terrain tile?
-	- This is caused by a different kind of floating point error for avatar bones on **HUGE** colliders. A workaround for it would be placing smaller box colliders on the areas where you expect people to walk (e.g. airports, tarmac, runways.). 
 
 ---
 ## Notes
