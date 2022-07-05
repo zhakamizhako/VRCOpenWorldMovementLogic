@@ -6,7 +6,10 @@ Discord: ZhakamiZhako#2147
 
 VRC: Zhakami Zhako
 
-For more extensions and if you want to support me, you may support me through Ko-Fi: https://ko-fi.com/zhakamizhako
+For more extensions and if you want to support me, you may support me through and / or booth
+
+https://ko-fi.com/zhakamizhako
+https://zzhako.booth.pm/
 
 Any concerns, please feel free to contact me. 
 
@@ -15,13 +18,20 @@ Any concerns, please feel free to contact me.
 
 Before using this system; Note the downsides.
 
-You will lose:
->	- Static Batching
+Please note the following:
+>	- You will not be able to use Static Batching.
+>	- Avatar bones will go crazy when walking in **vast** terrain
 
 You will probably need to:
 >	- Optimize without Static objects
 >	- Remove the 'static' option on affected objects
 >	- Optimize using LODs
+>	- Switch a synchronization method for objects using Object Sync or wait for a while.
+>	- Make small colliders on parts where you are expected to walk.
+
+
+Todo
+>	- Create a script or workaround for objects involving object sync
 
 
 # Changelog 
@@ -51,58 +61,25 @@ How it works is basically moving the map hierarchy as you cross the certain dist
 How the player synchronization works is it needs a player manager, a VRC Station to each player, and a controller on each VRCStation in order to adapt and synchronize each player according to their offset of their current position and the map.
 
 Aircraft synchronization also is dependent on how far it is based on the map offset as well.
-[add further details]
 
 Other features covering outside SaccFlight may come in the future.
 
 # SETUP
 
-
-You can use directly the prefab provided or the one in the sample scene. If there is a need to setup from scratch, you may refer below.
-```
-(Root Level)
-Map
-	Terrains
-	    Terrain1
-	        Airbase1
-	        (etc.)
-	    Terrain2
-	        Airbase2
-	        ...
-        ...
-        TerrainXX
-	Aircraft
-		Plane1
-			(Standard SaccFlight Setup)
-		Plane2
-		...
-		PlaneX
-	PlayerOWML Controller
-		ZHKStations
-			ZHK_Station (1)
-			ZHK_Station (2)
-			...
-			ZHK_Station (80)
-	...
-	(Etc parts of your map)
-PlayerParent
-PlayerUI
-	EmptyTransform
-	(Enhancements)
-Spawn
-```
-
 ## STEPS TO SETUP WORLD WITH OWML
 
 REQUIREMENTS:
 
-- VRCSDK3-WORLD-2022.06.03.00.03_Public or onwards
-- UdonSharp_v1.0.0b12 or Udonsharp v 1.0.1 from the CreatorCompanion
-- CyanEmu or VRChat Client Simulator 1.1.3
-- SaccFlightAndVehicles latest commit (97252921158388ace978797e374cda42974ebd48) (Download the latest commit via https://github.com/Sacchan-VRC/SaccFlightAndVehicles.git)
+- VRCSDK3-WORLD-2022.06.03.00.03_Public or onwards (https://vrchat.com/home/download)
+- UdonSharp_v1.0.0b12 or Udonsharp v 1.0.1 from the CreatorCompanion or onwards. (1.0 beta's should still work; Below 1.0 may have problems.) (Download via https://vrchat.com/home/download)
+- CyanEmu or VRChat Client Simulator 1.1.3 (Check Creator Companion)
+- SaccFlightAndVehicles latest commit (97252921158388ace978797e374cda42974ebd48) or onwards. (Download the latest commit via https://github.com/Sacchan-VRC/SaccFlightAndVehicles.git extract the whole master folder to your assets, or wait until 1.6 releases)
+- OWML (Get from releases, https://github.com/zhakamizhako/VRCOpenWorldMovementLogic/releases)
 	
 	
-We'll assume that you've already downloaded the latest SDK (VRCSDK3-WORLD-2022.06.03.00.03_Public or onwards), the latest UdonSharp Beta (UdonSharp_v1.0.0b12 or Udonsharp v 1.0.1 from the CreatorCompanion) up to being able to setup and fly the aircraft in Unity.
+We'll assume that you've already downloaded the latest SDK (VRCSDK3-WORLD-2022.06.03.00.03_Public or onwards), **a project that is already migrated for the Creator Companion Beta** (however, projects that are already using the UdonSharp 1.0 beta are compatible), **the latest UdonSharp Beta (UdonSharp_v1.0.0b12 or Udonsharp v 1.0.1 from the CreatorCompanion)**, up to being able to setup and fly the aircraft in Unity with the **VRChat Client Simulator 1.1.3**. 
+
+**I cannot guarantee that this will work for older versions. If you want to try, please backup your project beforehand.**
 
 You can integrate the system in a few ways
 - Use the prefab in Assets/FFR/OWML; 
@@ -184,11 +161,24 @@ This will apply for both creating  a world from scratch and for worlds that need
 	        - Any other ParticleSystem that may need to be inside the MapObject.
 	        
 		![particlesystem](images/ParticleSystem.PNG)
+	* Configure each weapons to use the world space
+		- Navigate through your Aircraft/DialFunctions/R/DFUNC_AAM or DFUNC_AGM or DFUNC_Bomb, assign the **World Parent** with the **MapObject**
+		![dfunc](images/weapons_dfunc.PNG)
+		
+		
 5. Assign the SyncScripts Involved in the UIScript.
     - You must add every single SyncScript_OWML inside the Sacc Sync List in UIScript.
 
 		![syncscript](images/UIscript_saccsync.PNG)
-6. Test. Optimize. Remove any unnecessary objects. 
+6. Update the VRCSceneDescriptor's respawn height
+	- Set the respawn height to a reasonable, ridiculous amount in order to bypass the respawn height. (e.g. 999999)
+		![descriptor](images/scenedescriptor.PNG)
+		
+7. Set the Spawn area to the same object as ZHK_RespawnHandler
+	- Refer to the prefab of the spawn object. Make sure the VRCSceneDescriptor points to that spawn.
+	
+
+9. Test. Optimize. Remove any unnecessary objects. 
 
 ## Using the Scene
 
@@ -196,7 +186,63 @@ You can use the scene (OWML_Test) as your basis, example or when making the worl
 
 
 ## Making from scratch
-- Will be documented in the next few releases. For now, please dont.
+
+If there is an immediate need to create everything from scratch, you will need to setup your hierarchy this way.
+```
+(Root Level)
+Map
+	Terrains
+	    Terrain1
+	        Airbase1
+	        (etc.)
+	    Terrain2
+	        Airbase2
+	        ...
+        ...
+        TerrainXX
+	Aircraft
+		Plane1
+			(Standard SaccFlight Setup)
+		Plane2
+		...
+		PlaneX
+	PlayerOWML Controller
+		ZHKStations
+			ZHK_Station (1)
+			ZHK_Station (2)
+			...
+			ZHK_Station (80)
+	...
+	(Etc parts of your map)
+PlayerParent
+PlayerUI
+	EmptyTransform
+	(Enhancements)
+Spawn
+```
+
+You will need to do these following steps.
+
+1.	Create a GameObject, name it UIScript. Assign a ZHK_UIScript. This will serve as your 'global' state controller for the OWML.
+2.	Create a GameObject, name it Map. Make sure it is placed on (0, 0, 0) Keep in mind that this will be your 'map' or the object that serves to be 'moved' around once OWML is enabled. This is where you are supposed to place your 'play space'.
+	-	Assign the Map in it.
+4.	Create another GameObject, make sure it is not parented to anything. Name it PlayerParent. This will serve as the transform where your aircraft will be automatically be parented on whenever you enter it. 
+5.	Another GameObject, name it Player Manager. Assign a ZHK_OWML_Player. This will serve as the OWML Player Manager.
+	-	Parent this thing under Map
+	-	Assign the UIScript to your recently created ZHK_UIScript.
+6.	Create another GameObject, assign ZHK_OWML_Station to it.
+	-	Assign the UI Script to it
+	-	Assign the player controller to it. 
+	-	Add a VRC Station on this very same object, assign the StationObject to itself.
+7.	Duplicate ZHK_OWML_Station 79 times (total of 80 stations)
+8.	Assign the Stations in the Player Manager.
+
+**Caution: instructions still wip, will add photo references.**
+
+For the rest, follow the steps on setting up the prefab from steps 4 ~ 9.
+
+
+---
 
 
 ## FAQ
@@ -205,20 +251,35 @@ You can use the scene (OWML_Test) as your basis, example or when making the worl
 	- You may have forgotten to remove 'static' from other gameobjects. Please uncheck Static on these objects. An easy fix would be selecting everything, check static, then uncheck static and apply it for the child objects.
 	- These objects may be not under the Map Object. Please put these objects under the Map Object.
 
+- My plane randomly respawns as I dive!
+	- You forgot to set the respawn height. Select the VRC Scene Descriptor, set the respawn height to -9999999. 
+
 - Why are my particles weird whenever i fly further?
 	- Please check if these particles' Simulation Space are in **Custom** and if the Custom Simulation Space in the **Map Object**
 
 - Why are my weapons (AAM, AGM, Bombs) acting weird as I fire them and fly further?
 	- Please check DFUNC_AAM, DFUNC_AGM, DFUNC_BOMB on your aircrafts and make sure the World Parent is set to **Map Object**
 
+- Why do I see capsules following other players?
+	- You might've left the **Show Debug Player Pos** checked in the UIScript. Uncheck it.
+
+- Why is my avatar shaking really badly when I'm walking around a large terrain tile?
+	- This is caused by a different kind of floating point error for avatar bones on **HUGE** colliders. A workaround for it would be placing smaller box colliders on the areas where you expect people to walk (e.g. airports, tarmac, runways.). 
+
 - Why is it still jiggly?
 	- Please check whether if the OWMLScript is in the Udon Extension Behaviours list in the Sacc Entity. Make sure that you are not missing any of the required parameters.
 	
 - Can I implement teleportation?
-    - Teleportation is currently experimental at the moment. 
+    - Teleportation is currently experimental at the moment due to the way how the system works. An enhancement script will be provided over time.
+
+- Why do I see a spam of UdonSharp Errors saying Source C# Script on xxxxx (UdonSharp.UdonSharpProgramAsset) is null?
+    - It could be that you've downloaded the entire repository instead of using the releases tag. Please use the release [here.](https://github.com/zhakamizhako/VRCOpenWorldMovementLogic/releases)
+    - You forgot to migrate your project to the new Udonsharp. This project however, has been tested with the new releases of UdonSharp & VRCSDK.
 
 - Why is x x x x ?
 	- Please contact me via Discord: ZhakamiZhako#2147 or Twitter: @ZZhako 
+
+
 ---
 ## Notes
 
@@ -244,15 +305,15 @@ The components here below are merely descriptions and a table of 'requirements'.
 |No|Yes|Chunk Distance|Allows you to set the distance for each 'chunk' of the map. Default value is 3000 (meters). Increasing this may result to floating point errors, and reducing it may result to a constant chunk call. Balance it accordingly. 
 |No|No|Skybox|Sky settings for procedural skybox. If you don't have procedural skybox, please don't use this
 |No|No|Base Atmos|The base value for the atmosphere thinning value. It will be automatically be set as you hit play.
-|No|No|Atmosphere Dark Start|
-|No|No|Atmosphere Dark Max|
-|No|No|Show Debug Player Pos|
-|||Sync Even In Vehicle
-|||Allow Player OWML
-|Yes|Yes|Sacc Sync List| yada yada yada
-|No|No|Player Update rate|
-|No|No|Recheck Interval|
-|No|No|Use Atmosphere|
+|No|No|Atmosphere Dark Start| Minimum altitude for the atmosphere darkening (For procedural Skybox)
+|No|No|Atmosphere Dark Max| Maximum Altitude for the atmosphere darkening (For Procedural Skybox)
+|No|No|Show Debug Player Pos| Enabling this will display a gameobject that represents the synchronization of the VRCStations.
+|||Sync Even In Vehicle|This will allow synchronization of the players despite being inside the vehicle. May be network expensive. 
+|||Allow Player OWML| This will allow the world movement system even when on foot. 
+|Yes|Yes|Sacc Sync List| Place every single SyncScript_OWML that is existing in the scene in order to properly update the aircrat list.
+|No|No|Player Update rate| The update rate for players to send their position in seconds
+|No|No|Recheck Interval| This will be applicable for players joining a little late as an emergency network call to ask the instance owner to have them assign a station.
+|No|No|Use Atmosphere| This will enable/disable Sacchan's Atmosphere Thinning on the air vehicles. Either disable this for space vehicles, or include a ridiculous amount on the vehicles themselves.
 
 **ZHK_OpenWorldMovementLogicScript**
 
