@@ -62,7 +62,7 @@ MonoBehaviour:
       Data: 3|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: SAV_HUDController, SaccFlightAndVehicles.Runtime
+      Data: SaccFlightAndVehicles.SAV_HUDController, SaccFlightAndVehicles.Runtime
     - Name: 
       Entry: 8
       Data: 
@@ -1141,7 +1141,7 @@ MonoBehaviour:
       Data: 62|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: SaccEntity, SaccFlightAndVehicles.Runtime
+      Data: SaccFlightAndVehicles.SaccEntity, SaccFlightAndVehicles.Runtime
     - Name: 
       Entry: 8
       Data: 
@@ -1649,7 +1649,7 @@ MonoBehaviour:
       Data: 86|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: SAV_EffectsController, SaccFlightAndVehicles.Runtime
+      Data: SaccFlightAndVehicles.SAV_EffectsController, SaccFlightAndVehicles.Runtime
     - Name: 
       Entry: 8
       Data: 

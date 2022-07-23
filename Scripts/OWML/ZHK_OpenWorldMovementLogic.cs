@@ -3,6 +3,7 @@ using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
+using SaccFlightAndVehicles;
 
 // ZHK Open World Movement Logic
 // For use with SaccFlight 1.5 Onwards
@@ -15,7 +16,7 @@ using VRC.Udon;
 public class ZHK_OpenWorldMovementLogic : UdonSharpBehaviour
 {
     [Tooltip("Required: The Aircraft's SAVController \n \n 必須 航空機のSAVController")]
-    public UdonBehaviour EngineControl;
+    [InspectorName("SaccAirVehicle / SaccGroundVehicle")]public UdonBehaviour EngineControl;
     
     [System.NonSerialized] public  Transform Map; 
     private Transform startAreaTransform;
@@ -38,6 +39,7 @@ public class ZHK_OpenWorldMovementLogic : UdonSharpBehaviour
 
     private SaccEntity Entity;
     private SaccAirVehicle SAV;
+    private SaccGroundVehicle SGV;
     [System.NonSerializedAttribute] public bool Piloting = false;
     [System.NonSerializedAttribute] public bool Passenger = false;
     
@@ -54,6 +56,7 @@ public class ZHK_OpenWorldMovementLogic : UdonSharpBehaviour
         startAreaTransform.parent = originalParent;
 
         SAV = EngineControl.gameObject.GetComponent<SaccAirVehicle>();
+        SGV = EngineControl.gameObject.GetComponent<SaccGroundVehicle>();
         
             if (UIScript.Map != null)
             {
@@ -77,8 +80,8 @@ public class ZHK_OpenWorldMovementLogic : UdonSharpBehaviour
         startPos = Entity.transform.position;
         originalParent = Entity.transform.parent;
         PosSync = -Map.transform.position + AnchorCoordsPosition;
-
-        SAV.UseAtmospherePositionOffset = UIScript.UseAtmosphere;
+        
+        if(SAV!=null) SAV.UseAtmospherePositionOffset = UIScript.UseAtmosphere;
     }
 
     // public void SFEXT_O_RespawnButton()
@@ -147,7 +150,6 @@ public class ZHK_OpenWorldMovementLogic : UdonSharpBehaviour
             PosSync = -Map.transform.position + AnchorCoordsPosition;
             startPos = Entity.transform.position;
             originalParent = Entity.transform.parent;
-            
         }
     }
 
@@ -159,7 +161,7 @@ public class ZHK_OpenWorldMovementLogic : UdonSharpBehaviour
         if (Networking.IsOwner(gameObject) &&  !Occupied )
         {
             Entity.transform.position = startAreaTransform.position;
-            SAV.AtmospherePositionOffset = 0f;
+            if(SAV!=null) SAV.AtmospherePositionOffset = 0f;
         }
     }
     
@@ -247,7 +249,10 @@ public class ZHK_OpenWorldMovementLogic : UdonSharpBehaviour
                 
                 
                 //Atmosphere binding
-                if(UIScript.UseAtmosphere) SAV.AtmospherePositionOffset = (-Map.transform.position.y + Entity.transform.position.y);
+                if (SAV != null)
+                {
+                    if(UIScript.UseAtmosphere) SAV.AtmospherePositionOffset = (-Map.transform.position.y + Entity.transform.position.y);   
+                }
             }
         }
     }
