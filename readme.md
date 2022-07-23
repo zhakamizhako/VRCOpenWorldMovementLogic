@@ -37,6 +37,13 @@ Todo
 
 # Changelog 
 ```
+(v1.2)
+- Adaption for SaccFlight 1.6, added namespace changes
+- Added support for SaccGroundVehicles
+- Added Debugger when enabling Debug Player Pos in UIScript
+- Added Project fairy Logo
+
+
 (v1.1)
 - Improved ground player OWML
 - Improved handler when a certain player has not been assigned a station
