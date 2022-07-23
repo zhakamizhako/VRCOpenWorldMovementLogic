@@ -21,12 +21,13 @@ Before using this system; Note the downsides.
 Please note the following:
 >	- You will not be able to use Static Batching.
 >	- Avatar bones will go crazy when walking in **vast** terrain
+>	- VRC Object Sync'd objects will only synchronize in World Space
 
 You will probably need to:
 >	- Optimize without Static objects
 >	- Remove the 'static' option on affected objects
 >	- Optimize using LODs
->	- Switch a synchronization method for objects using Object Sync or wait for a while.
+>	- Use the ZHK_ModifiedObjectSync Script to Synchronize objects in Map Space
 >	- Make small colliders on parts where you are expected to walk.
 
 
@@ -295,7 +296,7 @@ For the rest, follow the steps on setting up the prefab from steps 4 ~ 9.
 ## Components
 The components here below are merely descriptions and a table of 'requirements'. You may not need to reassign some of them (apart from the ZHK_OpenWorldMovementLogic) if you are using the scene or the existing prefab.
 
-**Player UI Script**
+### Player UI Script
 
 |In Prefab?|Required| Item | Description |
 |---|---| --- | --- |
@@ -315,7 +316,7 @@ The components here below are merely descriptions and a table of 'requirements'.
 |No|No|Recheck Interval| This will be applicable for players joining a little late as an emergency network call to ask the instance owner to have them assign a station.
 |No|No|Use Atmosphere| This will enable/disable Sacchan's Atmosphere Thinning on the air vehicles. Either disable this for space vehicles, or include a ridiculous amount on the vehicles themselves.
 
-**ZHK_OpenWorldMovementLogicScript**
+### ZHK_OpenWorldMovementLogicScript
 
 |Required| Item | Description |
 |---| --- | --- |
@@ -327,14 +328,14 @@ The components here below are merely descriptions and a table of 'requirements'.
 |Yes|Vehicle Rigid Body|Assign here your vehicle's rigidbody
 |Yes|Respawn Height|Default value is 1.8
 
-**ZHK_OWML_Player**
+### ZHK_OWML_Player
 
 |In Prefab?|Required| Item | Description |
 |---|---| --- | --- |
 |Yes|Yes|UI Script| Assign here your scene's UI Script
 |Yes|Yes|Stations| Requires 80 objects of ZHK_OWML_Station
 
-**ZHK_OWML_Station**
+### ZHK_OWML_Station
 
 |In Prefab?|Required| Item | Description |
 |---|---| --- | --- |
@@ -349,7 +350,7 @@ The components here below are merely descriptions and a table of 'requirements'.
 
 ## Enhancement Components
 
-**ZHK_CullGroup**
+### ZHK_CullGroup
 
 This tool allows you to auto disable specific objects according to distance.
 
@@ -361,7 +362,7 @@ This tool allows you to auto disable specific objects according to distance.
 |Use For Each|Check through the items every frame. May be expensive.
 |Wait Timer|Time before the script starts checking upon loading the world.
 
-**ZHK_IsKinematicGroup**
+### ZHK_IsKinematicGroup
 
 This tool allows you to auto 'static' aircrafts when you are further away from them. 
 
@@ -372,3 +373,12 @@ This tool allows you to auto 'static' aircrafts when you are further away from t
 |Use For Each|Check through the items every frame. May be expensive.
 |Wait Timer|Time before the script starts checking upon loading the world.
 
+
+### ZHK_ModifiedObjectSync
+**Caution: WIP**
+This tool will allow you to synchronize objects for map space instead of world space. Slap this to a gameobject, remove the VRC Object Sync from the object and call it a day.
+
+|Item|Description|
+|---|---|
+|Use Local|Use Local Space (keep this on)
+|Update Rate| The Update rate in seconds before sending the new coordinates to each players. (Needs Tweaking)|
