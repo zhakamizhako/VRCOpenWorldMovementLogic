@@ -282,7 +282,10 @@ For the rest, follow the steps on setting up the prefab from steps 4 ~ 9.
 	- This is caused by a different kind of floating point error for avatar bones on **HUGE** colliders. A workaround for it would be placing smaller box colliders on the areas where you expect people to walk (e.g. airports, tarmac, runways.). 
 
 - Why is it still jiggly?
-	- Please check whether if the OWMLScript is in the Udon Extension Behaviours list in the Sacc Entity. Make sure that you are not missing any of the required parameters.
+	- Please check whether if the OWMLScript is in the Udon Extension Behaviours list in the Sacc Entity. Make sure that you are not missing any of the required parameters. Make sure you have a reasonable chunk distance as well. Unity starts shaking around > 2000m from the origin point of the scene. 
+	
+- Why is it that when I enter a plane, the scaling is weird?
+	- Please keep the PlayerParent scale to **1, 1, 1** at all times.
 	
 - Can I implement teleportation?
     - Teleportation is currently experimental at the moment due to the way how the system works. An enhancement script will be provided over time.
