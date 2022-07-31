@@ -40,6 +40,7 @@ public class ZHK_OpenWorldMovementLogic : UdonSharpBehaviour
     private SaccEntity Entity;
     private SaccAirVehicle SAV;
     private SaccGroundVehicle SGV;
+    private SaccSeaVehicle SSV;
     [System.NonSerializedAttribute] public bool Piloting = false;
     [System.NonSerializedAttribute] public bool Passenger = false;
     
@@ -57,6 +58,7 @@ public class ZHK_OpenWorldMovementLogic : UdonSharpBehaviour
 
         SAV = EngineControl.gameObject.GetComponent<SaccAirVehicle>();
         SGV = EngineControl.gameObject.GetComponent<SaccGroundVehicle>();
+        SSV = EngineControl.gameObject.GetComponent<SaccSeaVehicle>();
         
             if (UIScript.Map != null)
             {
