@@ -179,10 +179,10 @@ This will apply for both creating  a world from scratch and for worlds that need
 	- Change your camera settings's Clear flags to **Solid Color**. Adjust your clipping planes as needed. This will allow you to render for more than 100km's than the usual limit of Unity; This is due to the skybox clear flag that forces objects to be culled if it is more than 100km's.
 	- Use the FakeSkybox object in order to manipulate the skybox. You may refer to the sample scene's camera settings. **note: You may use UIOjbect's Folow object to assign it as a group of objects to follow you.**
 	
-	![camsettings](images/camsettings.png)
+	![camsettings](images/camsettings.PNG)
 	
 	
-	![skybox](images/skybox_2.png)
+	![skybox](images/skybox_2.PNG)
 
 6. Update the VRCSceneDescriptor's respawn height
 	- Set the respawn height to a reasonable, ridiculous amount in order to bypass the respawn height. (e.g. 999999)
@@ -328,6 +328,7 @@ The components here below are merely descriptions and a table of 'requirements'.
 |No|No|Player Update rate| The update rate for players to send their position in seconds
 |No|No|Recheck Interval| This will be applicable for players joining a little late as an emergency network call to ask the instance owner to have them assign a station.
 |No|No|Use Atmosphere| This will enable/disable Sacchan's Atmosphere Thinning on the air vehicles. Either disable this for space vehicles, or include a ridiculous amount on the vehicles themselves.
+|No|No|Player Follow Object| Adding an object in here will allow it to 'follow' your local player. By default, the fake skybox is added here.
 
 ### ZHK_OpenWorldMovementLogicScript
 
