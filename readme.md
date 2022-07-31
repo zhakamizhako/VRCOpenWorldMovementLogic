@@ -29,11 +29,7 @@ You will probably need to:
 >	- Optimize using LODs
 >	- Use the ZHK_ModifiedObjectSync Script to Synchronize objects in Map Space
 >	- Make small colliders on parts where you are expected to walk.
-
-
-Todo
->	- Create a script or workaround for objects involving object sync
-
+>	- Use the included modified Object Sync
 
 # Changelog 
 ```
@@ -178,6 +174,16 @@ This will apply for both creating  a world from scratch and for worlds that need
     - You must add every single SyncScript_OWML inside the Sacc Sync List in UIScript.
 
 		![syncscript](images/UIscript_saccsync.PNG)
+
+1. Modify the main camera to allow distant rendering
+	- Change your camera settings's Clear flags to **Solid Color**. Adjust your clipping planes as needed. This will allow you to render for more than 100km's than the usual limit of Unity; This is due to the skybox clear flag that forces objects to be culled if it is more than 100km's.
+	- Use the FakeSkybox object in order to manipulate the skybox. You may refer to the sample scene's camera settings. **note: You may use UIOjbect's Folow object to assign it as a group of objects to follow you.**
+	
+	![camsettings](images/camsettings.png)
+	
+	
+	![skybox](images/skybox_2.png)
+
 6. Update the VRCSceneDescriptor's respawn height
 	- Set the respawn height to a reasonable, ridiculous amount in order to bypass the respawn height. (e.g. 999999)
 		![descriptor](images/scenedescriptor.PNG)
