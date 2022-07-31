@@ -88,7 +88,7 @@ We'll assume that you've already downloaded the latest SDK, setup the world requ
 
 You can integrate the system in a few ways
 - Use the prefab in Assets/FFR/OWML; 
-- Load OWML_Test Scene file
+- Load OWML_Sample Scene file
 - Make from scratch. (If you want to, but i highly suggest not to.)
 
 ### USING THE PREFAB
@@ -197,7 +197,7 @@ This will apply for both creating  a world from scratch and for worlds that need
 
 ## Using the Scene
 
-You can use the scene (OWML_Test) as your basis, example or when making the world. When extracting the prefab from it, make sure you assign each aircraft's OWMLScript, SyncScript, UIScript and the Map Object of the UIScript.
+You can use the scene (OWML_Sample) as your basis, example or when making the world. When extracting the prefab from it, make sure you assign each aircraft's OWMLScript, SyncScript, UIScript and the Map Object of the UIScript.
 
 
 ## Making from scratch
