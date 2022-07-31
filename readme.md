@@ -76,13 +76,13 @@ Other features covering outside SaccFlight may come in the future.
 REQUIREMENTS:
 
 - VRCSDK3-WORLD-2022.06.03.00.03_Public or onwards (https://vrchat.com/home/download)
-- UdonSharp_v1.0.0b12 or Udonsharp v 1.0.1 from the CreatorCompanion or onwards. (1.0 beta's should still work; Below 1.0 may have problems.) (Download via https://vrchat.com/home/download)
+- Requires Udonsharp from the CreatorCompanion.  (Download via https://vrchat.com/home/download)
 - CyanEmu or VRChat Client Simulator 1.1.3 (Check Creator Companion)
-- SaccFlightAndVehicles latest commit (97252921158388ace978797e374cda42974ebd48) or onwards. (Download the latest commit via https://github.com/Sacchan-VRC/SaccFlightAndVehicles.git extract the whole master folder to your assets, or wait until 1.6 releases)
+- SaccFlight 1.6 (https://github.com/Sacchan-VRC/SaccFlightAndVehicles)
 - OWML (Get from releases, https://github.com/zhakamizhako/VRCOpenWorldMovementLogic/releases)
 	
 	
-We'll assume that you've already downloaded the latest SDK (VRCSDK3-WORLD-2022.06.03.00.03_Public or onwards), **a project that is already migrated for the Creator Companion Beta** (however, projects that are already using the UdonSharp 1.0 beta are compatible), **the latest UdonSharp Beta (UdonSharp_v1.0.0b12 or Udonsharp v 1.0.1 from the CreatorCompanion)**, up to being able to setup and fly the aircraft in Unity with the **VRChat Client Simulator 1.1.3**. 
+We'll assume that you've already downloaded the latest SDK, setup the world requirements (Scene descriptor, setting up SaccFlight 1.6, etc.) up to being able to setup and fly the aircraft in Unity with the **VRChat Client Simulator 1.1.3 or onwards.**. 
 
 **I cannot guarantee that this will work for older versions. If you want to try, please backup your project beforehand.**
 
