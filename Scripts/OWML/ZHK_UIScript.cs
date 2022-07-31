@@ -80,6 +80,10 @@ public class ZHK_UIScript : UdonSharpBehaviour
              "SacchanのAtmosphere Thinningを使用するかどうかを指定します。これを無効にすると宇宙旅行ができるようになるか、機体のSAVControllerで大量に指定することになります。")]
     public bool UseAtmosphere = true;
 
+    [Header("For your needs if you have a group of objects to follow the current local player.")]
+    public Transform PlayerFollowObject; // For a moving skybox or anything in regards to following a player.
+    private VRCPlayerApi localPlayer;
+
     // public UdonBehaviour TriggerScriptPlugin; // For future plugin
 
     void Start()
@@ -94,6 +98,8 @@ public class ZHK_UIScript : UdonSharpBehaviour
         // {
         //     CloudMat.SetFloat("_FromHeight", baseHeight);
         // }
+
+        localPlayer = Networking.LocalPlayer;
 
         if (Map == null)
         {
@@ -137,6 +143,12 @@ public class ZHK_UIScript : UdonSharpBehaviour
             {
                 timer = timer + Time.deltaTime;
             }
+        }
+
+        // Useful for a moving skybox or if you need anything that needs to follow a player.
+        if (PlayerFollowObject != null)
+        {
+            PlayerFollowObject.position = localPlayer.GetPosition();
         }
 
         if (Skybox != null && PlayerAircraft != null)

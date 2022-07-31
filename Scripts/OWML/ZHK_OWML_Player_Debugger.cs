@@ -9,9 +9,12 @@ public class ZHK_OWML_Player_Debugger : UdonSharpBehaviour
 {
     public Text DebugText;
     public ZHK_OWML_Station StationBase;
+    public Transform LookAtBase;
+    private VRCPlayerApi localPlayer;
 
     void Start()
     {
+        localPlayer = Networking.LocalPlayer;
         if (DebugText == null || StationBase == null)
         {
             gameObject.SetActive(false);
@@ -19,6 +22,10 @@ public class ZHK_OWML_Player_Debugger : UdonSharpBehaviour
     }
     void Update()
     {
+        if (LookAtBase != null)
+        {
+            LookAtBase.LookAt(localPlayer.GetPosition());
+        }
         if (DebugText != null)
         {
             string output = "";
