@@ -38,6 +38,7 @@ You will probably need to:
 - Added support for SaccGroundVehicles
 - Added Debugger when enabling Debug Player Pos in UIScript
 - Added Project fairy Logo
+- Added fake skybox template
 
 
 (v1.1)
