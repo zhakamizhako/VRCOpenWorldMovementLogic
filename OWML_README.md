@@ -29,11 +29,7 @@ You will probably need to:
 >	- Optimize using LODs
 >	- Use the ZHK_ModifiedObjectSync Script to Synchronize objects in Map Space
 >	- Make small colliders on parts where you are expected to walk.
-
-
-Todo
->	- Create a script or workaround for objects involving object sync
-
+>	- Use the included modified Object Sync
 
 # Changelog 
 ```
@@ -42,6 +38,7 @@ Todo
 - Added support for SaccGroundVehicles
 - Added Debugger when enabling Debug Player Pos in UIScript
 - Added Project fairy Logo
+- Added fake skybox template
 
 
 (v1.1)
@@ -79,13 +76,13 @@ Other features covering outside SaccFlight may come in the future.
 REQUIREMENTS:
 
 - VRCSDK3-WORLD-2022.06.03.00.03_Public or onwards (https://vrchat.com/home/download)
-- UdonSharp_v1.0.0b12 or Udonsharp v 1.0.1 from the CreatorCompanion or onwards. (1.0 beta's should still work; Below 1.0 may have problems.) (Download via https://vrchat.com/home/download)
+- Requires Udonsharp from the CreatorCompanion.  (Download via https://vrchat.com/home/download)
 - CyanEmu or VRChat Client Simulator 1.1.3 (Check Creator Companion)
-- SaccFlightAndVehicles latest commit (97252921158388ace978797e374cda42974ebd48) or onwards. (Download the latest commit via https://github.com/Sacchan-VRC/SaccFlightAndVehicles.git extract the whole master folder to your assets, or wait until 1.6 releases)
+- SaccFlight 1.6 (https://github.com/Sacchan-VRC/SaccFlightAndVehicles)
 - OWML (Get from releases, https://github.com/zhakamizhako/VRCOpenWorldMovementLogic/releases)
 	
 	
-We'll assume that you've already downloaded the latest SDK (VRCSDK3-WORLD-2022.06.03.00.03_Public or onwards), **a project that is already migrated for the Creator Companion Beta** (however, projects that are already using the UdonSharp 1.0 beta are compatible), **the latest UdonSharp Beta (UdonSharp_v1.0.0b12 or Udonsharp v 1.0.1 from the CreatorCompanion)**, up to being able to setup and fly the aircraft in Unity with the **VRChat Client Simulator 1.1.3**. 
+We'll assume that you've already downloaded the latest SDK, setup the world requirements (Scene descriptor, setting up SaccFlight 1.6, etc.) up to being able to setup and fly the aircraft in Unity with the **VRChat Client Simulator 1.1.3 or onwards.**. 
 
 **I cannot guarantee that this will work for older versions. If you want to try, please backup your project beforehand.**
 
@@ -178,6 +175,16 @@ This will apply for both creating  a world from scratch and for worlds that need
     - You must add every single SyncScript_OWML inside the Sacc Sync List in UIScript.
 
 		![syncscript](images/UIscript_saccsync.PNG)
+
+1. Modify the main camera to allow distant rendering
+	- Change your camera settings's Clear flags to **Solid Color**. Adjust your clipping planes as needed. This will allow you to render for more than 100km's than the usual limit of Unity; This is due to the skybox clear flag that forces objects to be culled if it is more than 100km's.
+	- Use the FakeSkybox object in order to manipulate the skybox. You may refer to the sample scene's camera settings. **note: You may use UIOjbect's Folow object to assign it as a group of objects to follow you.**
+	
+	![camsettings](images/camsettings.PNG)
+	
+	
+	![skybox](images/skybox_2.PNG)
+
 6. Update the VRCSceneDescriptor's respawn height
 	- Set the respawn height to a reasonable, ridiculous amount in order to bypass the respawn height. (e.g. 999999)
 		![descriptor](images/scenedescriptor.PNG)
@@ -322,6 +329,7 @@ The components here below are merely descriptions and a table of 'requirements'.
 |No|No|Player Update rate| The update rate for players to send their position in seconds
 |No|No|Recheck Interval| This will be applicable for players joining a little late as an emergency network call to ask the instance owner to have them assign a station.
 |No|No|Use Atmosphere| This will enable/disable Sacchan's Atmosphere Thinning on the air vehicles. Either disable this for space vehicles, or include a ridiculous amount on the vehicles themselves.
+|No|No|Player Follow Object| Adding an object in here will allow it to 'follow' your local player. By default, the fake skybox is added here.
 
 ### ZHK_OpenWorldMovementLogicScript
 
