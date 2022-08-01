@@ -1,4 +1,4 @@
-# ZHK DLC - Open World Movement Logic Package Extension for SaccFlight 1.5~ and onwards
+# ZHK DLC - Open World Movement Logic Package Extension for SaccFlight.
 
 Twitter: [@ZZhako](https://twitter.com/ZZhako)
 
