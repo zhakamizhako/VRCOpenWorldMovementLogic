@@ -6,7 +6,7 @@ Discord: ZhakamiZhako#2147
 
 VRC: Zhakami Zhako
 
-For more extensions and if you want to support me, you may support me through and / or booth
+More extensions will come in the future! you may support me through and / or booth
 
 https://ko-fi.com/zhakamizhako
 https://zzhako.booth.pm/
