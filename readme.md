@@ -22,6 +22,7 @@ Please note the following:
 >	- You will not be able to use Static Batching.
 >	- Avatar bones will go crazy when walking in **vast** terrain
 >	- VRC Object Sync'd objects will only synchronize in World Space
+>	- When using QVPens, it will not synchronize properly when you've already crossed a chunk.
 
 You will probably need to:
 >	- Optimize without Static objects
@@ -30,6 +31,13 @@ You will probably need to:
 >	- Use the ZHK_ModifiedObjectSync Script to Synchronize objects in Map Space
 >	- Make small colliders on parts where you are expected to walk.
 >	- Use the included modified Object Sync
+>	- QVPen usage may only work best near the spawn for now. Try not to cross the first chunk.
+
+Todo
+>	- QVpen compatibility.
+
+Notes
+>	- When creating an aircraft, uncheck repeating world in the SaccAirVehicle.
 
 # Changelog 
 ```
