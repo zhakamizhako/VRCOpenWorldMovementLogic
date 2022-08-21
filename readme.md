@@ -11,7 +11,8 @@ More extensions will come in the future! you may support me through and / or boo
 https://ko-fi.com/zhakamizhako
 https://zzhako.booth.pm/
 
-Any concerns, please feel free to contact me. 
+Any concerns, please feel free to contact me or head to my discord under #OWML-talk or #OWML-support
+https://discord.gg/kjPhHSfUDY
 
 
 # IMPORTANT
