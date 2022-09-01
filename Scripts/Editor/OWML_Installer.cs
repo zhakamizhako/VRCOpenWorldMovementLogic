@@ -6,7 +6,9 @@ using UdonSharp;
 using UdonSharpEditor;
 using UnityEngine.SceneManagement;
 using SaccFlightAndVehicles;
+using VRC.SDK3.Components;
 using VRC.Udon;
+
 public class OWML_Installer : EditorWindow
 {
     private readonly BuildTargetGroup[] buildTargetGroups = 
@@ -17,24 +19,30 @@ public class OWML_Installer : EditorWindow
     private readonly GUILayoutOption[] miniButtonLayout = 
         {
             GUILayout.ExpandWidth(false),
+            GUILayout.Width(100),
+        };
+    private readonly GUILayoutOption[] normalButtonLayout =
+        {
+            GUILayout.ExpandWidth(false),
             GUILayout.Width(200),
         };
 
-    
+
     public GameObject OWMLPrefab;
 
     public ZHK_UIScript UIScript;
     public Transform targetParents;
     public Transform mapObject;
+    public Transform playerRespawnHandler;
 
     private Vector2 vehicleScrollPosition;
-    private Vector2 particleScrollPosition;
+
     [MenuItem("SaccFlight/Open World Movement Logic")]
     public static void ShowWindow()
     {
         var window = GetWindow<OWML_Installer>();
         window.titleContent = new GUIContent("OWML Installer");
-        window.minSize = new Vector2(520, 520);
+        window.minSize = new Vector2(520, 620);
         window.Show();
     }
 
@@ -60,10 +68,28 @@ public class OWML_Installer : EditorWindow
     {
         var scene = SceneManager.GetActiveScene();
         //为了省事，这里选择的是所有包含SaccEntity的组件，然而例如防空导弹等物体也会包含SaccEntity，可能需要处理？
+        /*
+        EditorGUILayout.HelpBox("Check list before install OWML:\n" +
+            "1.Backup the scene. \n" +
+            "2.For vehicles in scence:\n" +
+            "   There is a SyncScript in Sacc Entity's child)\n" +
+            "   ... \n" +
+            "3.VRC Scence Discriptor and Reference Camera are at the root of the scence",MessageType.Info);
+        */
+        EditorGUILayout.LabelField("Step 1: Place the OWMLPrefab here, the prefab is in Assets/FFR/OWML");
+        
+
+        //you can modify it for your own porpose(like remove SaccFlightAccessories if there is already one in your scence)
         OWMLPrefab = EditorGUILayout.ObjectField("OWMLPrefab", OWMLPrefab, typeof(GameObject), true) as GameObject;
         //修改场景
         #region SENCE_SET_UP
         EditorGUILayout.LabelField("sence set up");
+        EditorGUILayout.Space();
+
+        EditorGUILayout.LabelField("Step 2:Use \"place prefab\" to add the OWML prefab to the scence");
+        EditorGUILayout.LabelField("use \"place objects\" to  move objects to 'mapObject' transform");
+        EditorGUILayout.LabelField("if the prefab has already been placed, go step 3");
+
         using (new EditorGUILayout.HorizontalScope())
         {
             if (GUILayout.Button(new GUIContent("place prefab"), EditorStyles.miniButtonLeft, miniButtonLayout))
@@ -75,24 +101,33 @@ public class OWML_Installer : EditorWindow
                 PlaceWorldObjects();
             }
         }
-        UIScript = (ZHK_UIScript)EditorGUILayout.ObjectField(UIScript, typeof(ZHK_UIScript), true);
-        targetParents = (Transform)EditorGUILayout.ObjectField(targetParents, typeof(Transform), true);
-        mapObject = (Transform)EditorGUILayout.ObjectField(mapObject, typeof(Transform), true);
-        if (GUILayout.Button(new GUIContent("find above"), EditorStyles.miniButtonLeft, miniButtonLayout))
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("Step 3:After place prefab, the fields below should be filled, if not, try find above");
+        UIScript = (ZHK_UIScript)EditorGUILayout.ObjectField("UI Script", UIScript, typeof(ZHK_UIScript), true);
+        targetParents = (Transform)EditorGUILayout.ObjectField("target parents", targetParents, typeof(Transform), true);
+        mapObject = (Transform)EditorGUILayout.ObjectField("map object", mapObject, typeof(Transform), true);
+        playerRespawnHandler = (Transform)EditorGUILayout.ObjectField("player respawn handler", playerRespawnHandler, typeof(Transform), true);
+
+        if (GUILayout.Button(new GUIContent("find above"), EditorStyles.miniButtonLeft, normalButtonLayout))
         {
             UpdateOWMLVariables();
         }
+        /*
+        EditorGUILayout.HelpBox("Check list after set scene:\n" +
+            "1.Every vehicle, map objects, and anything that has to be involved in the 'mapObject' are placed \n",MessageType.Info);
+        */
         #endregion
 
         //创建所有载具的列表
         #region VEHICLE_SET_UP
         EditorGUILayout.Space();
-        EditorGUILayout.LabelField("vehicle set up");
+        EditorGUILayout.LabelField("Step 4: ONLY for each plane below");
+        EditorGUILayout.LabelField("\"set scripts\", then assign Engine Control with corresponding SaccAirVehicle Object");
+        EditorGUILayout.LabelField("\"set particles\", then \"set weapons\"");
         var vehicleList = scene.GetRootGameObjects().SelectMany(o => o.GetComponentsInChildren<SaccEntity>());
         using (var scrollScope = new EditorGUILayout.ScrollViewScope(vehicleScrollPosition))
         {
             vehicleScrollPosition = scrollScope.scrollPosition;
-
                 foreach (var each in vehicleList)
                 {
                     using (new EditorGUILayout.HorizontalScope())
@@ -110,47 +145,69 @@ public class OWML_Installer : EditorWindow
                         */
                         using (new EditorGUI.DisabledGroupScope(false))//这里判断条件改为飞机是否位于正确的目录
                         {
-                            if (GUILayout.Button(new GUIContent("modify scripts"), EditorStyles.miniButtonLeft, miniButtonLayout))
+                            if (GUILayout.Button(new GUIContent("set scripts"), EditorStyles.miniButtonLeft, miniButtonLayout))
                                 ModifyPlane(each.gameObject);//参数：" sacc entity"所在的对象
+                            if (GUILayout.Button(new GUIContent("set particles"), EditorStyles.miniButtonLeft, miniButtonLayout))
+                                ModifyParticlePlane(each.gameObject);//参数：" sacc entity"所在的对象
+                            if (GUILayout.Button(new GUIContent("set weapons"), EditorStyles.miniButtonLeft, miniButtonLayout))
+                                ModifyWeapon(each.gameObject);//参数：" sacc entity"所在的对象
                         }
                     }
                 }
         }
-        if (GUILayout.Button(new GUIContent("sync vehicles to UI script"), EditorStyles.miniButtonLeft, miniButtonLayout))
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("Step 5: \"update UIscript\", this will sync all OWMLSync in scence to UIScript.");
+        if (GUILayout.Button(new GUIContent("update UIscript"), EditorStyles.miniButtonLeft, normalButtonLayout))
         {
             //TODO: search doesn't work, apply using proxy
             var OWMLSyncInScence = scene.GetRootGameObjects().SelectMany(o => o.GetComponentsInChildren<SAV_SyncScript_OWML>());
             UIScript.saccSyncList = OWMLSyncInScence.ToArray();
         }
+        /*
+        EditorGUILayout.HelpBox("Check list after set vehicles:\n" +
+            "1. OWMLScript Engine control has been assigned" +
+            "2. OWMLScript and SyncScript_OWML have beeen created, fields have been assigned correctly \n" +
+            "3. Original SyncScript has been disactived\n" +
+            "4. Following scripts can be found in Sacc entity/Udon Extension Behaviours\n" +
+            "a.SyncScript_OWML\n" +
+            "b.OWMLScript", MessageType.Info);
+        */
         #endregion
 
-        //创建所有粒子的列表
-        #region PARTICLE_SET_UP
+        #region utility
+        //其他功能
+        //启用所有静态物件
+        //重设重生位置
+        //设置参考摄像机
         EditorGUILayout.Space();
-        EditorGUILayout.LabelField("particle set up");
-        //Not all particle is needed to modified, how to judge?
-        var particleList = scene.GetRootGameObjects().SelectMany(o => o.GetComponentsInChildren<ParticleSystem>(true));
-        /*
-         //debug only :绘制所有粒子列表
-        using (var scrollScope = new EditorGUILayout.ScrollViewScope(particleScrollPosition))
+        EditorGUILayout.LabelField("Step 6: Other fuctions might be needed");
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("utilities");
+        /*No idea how to implent yet
+        if (GUILayout.Button(new GUIContent("disables all Static"), EditorStyles.miniButtonLeft, normalButtonLayout))
         {
-            particleScrollPosition = scrollScope.scrollPosition;
-            using (new EditorGUI.DisabledGroupScope(true))//这里不做判断，随时都可以修改所有粒子
+            foreach (var obj in scene.GetRootGameObjects())
             {
-                foreach (var each in particleList)
-                {
-                    using (new EditorGUILayout.HorizontalScope())
-                    {
-                        EditorGUILayout.ObjectField(each.gameObject, typeof(GameObject), true);
-                    }
-                }
+                obj.isStatic = false;   
             }
+            
         }
         */
-        if (GUILayout.Button(new GUIContent("modify particle"), EditorStyles.miniButtonLeft, miniButtonLayout))
+        if (GUILayout.Button(new GUIContent("set respawn position"), EditorStyles.miniButtonLeft, normalButtonLayout))
         {
-            foreach (var each in particleList)
-                ModifyParticle(each.gameObject);
+            var sceneDescriptor = scene.GetRootGameObjects().Select(o => o.GetComponent<VRCSceneDescriptor>()).FirstOrDefault(a => a != null);
+            if (sceneDescriptor != null)
+            {
+                sceneDescriptor.RespawnHeightY = -9999999f;
+                //if (sceneDescriptor.spawns[1] != null)
+                    //playerRespawnHandler.parent = sceneDescriptor.spawns[1];
+                sceneDescriptor.spawns = new Transform[] { playerRespawnHandler };
+            }
+        }
+        if (GUILayout.Button(new GUIContent("set cam rander dst"), EditorStyles.miniButtonLeft, normalButtonLayout))
+        {
+            var cameras = GameObject.FindObjectOfType<Camera>();
+            cameras.farClipPlane = 50000;
         }
         #endregion
 
@@ -168,8 +225,13 @@ public class OWML_Installer : EditorWindow
         
         var SAVControl = vehicleObject.GetComponentInChildren<SaccAirVehicle>();
         SAVControl.RepeatingWorld = false;
-        //type of SAVControl should be u# behaviour, but ZHK_OWML.cs reuqests a udon behaviour? 
-        //OWMLComponent.EngineControl = SAVControl;
+        //type of SAVControl should be u# behaviour, but ZHK_OWML.cs requires a udon behaviour? 
+        //here is a workaround
+        //var syncScriptComponent = vehicleObject.GetComponentInChildren<SAV_SyncScript>();
+        //OWMLComponent.EngineControl = syncScriptComponent.SAVControl as UdonBehaviour;
+        //emmmmm... not work
+
+        //OWMLComponent.EngineControl = SAVControl.gameObject;
         OWMLComponent.UIScript = UIScript;
         OWMLComponent.targetParent = targetParents;
         OWMLComponent.originalParent = vehicleObject.transform.parent;
@@ -209,9 +271,7 @@ public class OWML_Installer : EditorWindow
             }
             idx += 1;
         }
-        //TODO: apply using proxy
         ExtensionUdonBehaviours[entityControl.ExtensionUdonBehaviours.Length] = OWMLComponent;
-        
         entityControl.ExtensionUdonBehaviours = ExtensionUdonBehaviours;
 
         //Configuring HUDController
@@ -225,40 +285,64 @@ public class OWML_Installer : EditorWindow
             OWMLHudController.OWML = OWMLComponent;    
         }
 
-        //config weapon
-        ModifyWespon(vehicleObject);
-
         return;
     }
-    private void ModifyParticle(GameObject particleObject)
+
+    private void ModifyParticlePlane(GameObject vehicleObject)
+    {
+        //修改plann entity/effect control/ 非attached 下的所有粒子
+        //创建粒子列表
+        var particles = vehicleObject.GetComponentsInChildren<ParticleSystem>(true)
+            .Where(o => o.transform.parent.name != "AttachedEffects");
+        foreach (var each in particles)
+        {
+            ModifyParticle(each);
+        }
+        Debug.Log(string.Format("{0} particle systems modified for {1}", particles.ToArray().Length, vehicleObject.name));
+    }
+    
+    private void ModifyParticle(ParticleSystem particle)
     {
         //修改粒子的参数以适配owml
-        var particle = particleObject.GetComponent<ParticleSystem>();
-        var particleSystemMain = particle.main;
-        particleSystemMain.simulationSpace = ParticleSystemSimulationSpace.Custom;
-        particleSystemMain.customSimulationSpace = mapObject;
-
+        if (mapObject != null)
+        { 
+            var particleSystemMain = particle.main;
+            particleSystemMain.simulationSpace = ParticleSystemSimulationSpace.Custom;
+            particleSystemMain.customSimulationSpace = mapObject;
+        }
+        else
+        {
+            Debug.LogError("set mapObject first");
+        }
         return;
     }
 
-    private void ModifyWespon(GameObject vehicleObject)
+    private void ModifyWeapon(GameObject vehicleObject)
     {
-        var AAMs = vehicleObject.GetComponentsInChildren<DFUNC_AAM>();
-        foreach (var AAM in AAMs)
+        //TODO:无法定位非原生的武器
+        var AAMs = vehicleObject.GetComponentsInChildren<DFUNC_AAM>(true);
+        var AGMs = vehicleObject.GetComponentsInChildren<DFUNC_AGM>(true);
+        var bombs = vehicleObject.GetComponentsInChildren<DFUNC_Bomb>(true);
+        var rockets = vehicleObject.GetComponentsInChildren<DFUNCP_Rockets>(true);
+        foreach (var i in AAMs)
         {
-            AAM.WorldParent = mapObject;
+            i.WorldParent = mapObject.transform;
         }
-        var AGMs = vehicleObject.GetComponentsInChildren<DFUNC_AGM>();
-        foreach (var AGM in AGMs)
+        foreach (var i in AGMs)
         {
-            AGM.WorldParent = mapObject;
+            i.WorldParent = mapObject.transform;
         }
-        var Bombs = vehicleObject.GetComponentsInChildren<DFUNC_Bomb>();
-        foreach (var Bomb in Bombs)
+        foreach (var i in AGMs)
         {
-            Bomb.WorldParent = mapObject;
+            i.WorldParent = mapObject.transform;
         }
+        foreach (var i in rockets)
+        {
+            i.WorldParent = mapObject.transform;
+        }
+        Debug.Log(string.Format("{0} AAM, {1} AGM, {2} Bomb, {3} rocket modified", AAMs.Length, AGMs.Length, bombs.Length, rockets.Length));
     }
+    
     private void PlaceOWMLPrefab()
     {
         //查找场景中是否已经有预制件,如果没有，进行一个创建
@@ -272,14 +356,21 @@ public class OWML_Installer : EditorWindow
         else
         {
             //放置一个新的预制件，设置位置
-            GameObject OWMLObject = PrefabUtility.InstantiatePrefab(OWMLPrefab) as GameObject;
-            OWMLObject.transform.SetPositionAndRotation(Vector3.zero, Quaternion.Euler(0, 0, 0));
-            PrefabUtility.UnpackPrefabInstance(OWMLObject, PrefabUnpackMode.Completely, InteractionMode.AutomatedAction);
-            OWMLObject.transform.DetachChildren();
-            //Undo.RegisterCreatedObjectUndo(OWMLObject, "Install OWML"); // do i need to regist?
-            //解压预制件，取出其中对象
-            DestroyImmediate(OWMLObject);
-            Debug.Log("Prefab has been placed!");
+            if (OWMLPrefab != null)
+            {
+                GameObject OWMLObject = PrefabUtility.InstantiatePrefab(OWMLPrefab) as GameObject;
+                OWMLObject.transform.SetPositionAndRotation(Vector3.zero, Quaternion.Euler(0, 0, 0));
+                PrefabUtility.UnpackPrefabInstance(OWMLObject, PrefabUnpackMode.Completely, InteractionMode.AutomatedAction);
+                OWMLObject.transform.DetachChildren();
+                //Undo.RegisterCreatedObjectUndo(OWMLObject, "Install OWML"); // do i need to regist?
+                //解压预制件，取出其中对象
+                DestroyImmediate(OWMLObject);
+                Debug.Log("Prefab has been placed!");
+            }
+            else
+            {
+                Debug.LogError("set OWML prefab first");
+            }
         }
         //return UdonSharpEditorUtility.GetProxyBehaviour(udon) as UdonRadioCommunication;
         UpdateOWMLVariables();
@@ -297,11 +388,10 @@ public class OWML_Installer : EditorWindow
          * Scene Descriptor
          * 包含sacc entity 的载具
          */
-        var scence = SceneManager.GetActiveScene();
-        var rootObject = scence.GetRootGameObjects();
-        var mapObject = GameObject.Find("/MapObject");
         if (mapObject != null)
-        { 
+        {
+            var scence = SceneManager.GetActiveScene();
+            var rootObject = scence.GetRootGameObjects();
             foreach (var o in rootObject)
             {
                 if (IsMapObject(o))
@@ -309,6 +399,10 @@ public class OWML_Installer : EditorWindow
                     o.transform.SetParent(mapObject.transform, true);
                 }
             }
+        }
+        else
+        {
+            Debug.LogError("set mapObject first");
         }
     }
    
@@ -327,12 +421,17 @@ public class OWML_Installer : EditorWindow
         string[] keyNames= { "Main Camera", "Directional Light", "EventSystem", "Scene Descriptor", "UIObject",
         "SpawnArea", "PlayerParent", "MapObject","VRCWorld","UdonRadioCommunication"};
         foreach (var keyName in keyNames)
-        { //考虑到可能有"PlayerParent (1)"之类的命名
+        { 
             if (objectName.Contains(keyName))
+            //考虑到可能有"PlayerParent (1)"之类的命名
             {
                 //Debug.Log(objectName + " False");
                 return false;
-            }   
+            }
+        }
+        if(obj.GetComponent<Camera>() != null)
+        {
+            return false;
         }
         //Debug.Log(objectName + " True");
         return true; 
@@ -344,5 +443,6 @@ public class OWML_Installer : EditorWindow
         UIScript = GameObject.Find("/UIObject").GetComponent<ZHK_UIScript>();
         targetParents = GameObject.Find("/PlayerParent").transform;
         mapObject = GameObject.Find("/MapObject").transform;
+        playerRespawnHandler = GameObject.FindObjectOfType<ZHK_PlayerRespawnHandler>().transform;
     }
 }
