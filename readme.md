@@ -1,4 +1,4 @@
-# ZHK DLC - Open World Movement Logic Package Extension for SaccFlight 1.5~ and onwards
+# ZHK DLC - Open World Movement Logic Package Extension for SaccFlight.
 
 Twitter: [@ZZhako](https://twitter.com/ZZhako)
 
@@ -6,12 +6,13 @@ Discord: ZhakamiZhako#2147
 
 VRC: Zhakami Zhako
 
-For more extensions and if you want to support me, you may support me through and / or booth
+More extensions will come in the future! you may support me through and / or booth
 
 https://ko-fi.com/zhakamizhako
 https://zzhako.booth.pm/
 
-Any concerns, please feel free to contact me. 
+Any concerns, please feel free to contact me or head to my discord under #OWML-talk or #OWML-support
+https://discord.gg/kjPhHSfUDY
 
 
 # IMPORTANT
@@ -22,6 +23,7 @@ Please note the following:
 >	- You will not be able to use Static Batching.
 >	- Avatar bones will go crazy when walking in **vast** terrain
 >	- VRC Object Sync'd objects will only synchronize in World Space
+>	- When using QVPens, it will not synchronize properly when you've already crossed a chunk.
 
 You will probably need to:
 >	- Optimize without Static objects
@@ -30,6 +32,13 @@ You will probably need to:
 >	- Use the ZHK_ModifiedObjectSync Script to Synchronize objects in Map Space
 >	- Make small colliders on parts where you are expected to walk.
 >	- Use the included modified Object Sync
+>	- QVPen usage may only work best near the spawn for now. Try not to cross the first chunk.
+
+Todo
+>	- QVpen compatibility.
+
+Notes
+>	- When creating an aircraft, uncheck repeating world in the SaccAirVehicle.
 
 # Changelog 
 ```
@@ -88,7 +97,7 @@ We'll assume that you've already downloaded the latest SDK, setup the world requ
 
 You can integrate the system in a few ways
 - Use the prefab in Assets/FFR/OWML; 
-- Load OWML_Test Scene file
+- Load OWML_Sample Scene file
 - Make from scratch. (If you want to, but i highly suggest not to.)
 
 ### USING THE PREFAB
@@ -197,7 +206,7 @@ This will apply for both creating  a world from scratch and for worlds that need
 
 ## Using the Scene
 
-You can use the scene (OWML_Test) as your basis, example or when making the world. When extracting the prefab from it, make sure you assign each aircraft's OWMLScript, SyncScript, UIScript and the Map Object of the UIScript.
+You can use the scene (OWML_Sample) as your basis, example or when making the world. When extracting the prefab from it, make sure you assign each aircraft's OWMLScript, SyncScript, UIScript and the Map Object of the UIScript.
 
 
 ## Making from scratch
@@ -282,7 +291,10 @@ For the rest, follow the steps on setting up the prefab from steps 4 ~ 9.
 	- This is caused by a different kind of floating point error for avatar bones on **HUGE** colliders. A workaround for it would be placing smaller box colliders on the areas where you expect people to walk (e.g. airports, tarmac, runways.). 
 
 - Why is it still jiggly?
-	- Please check whether if the OWMLScript is in the Udon Extension Behaviours list in the Sacc Entity. Make sure that you are not missing any of the required parameters.
+	- Please check whether if the OWMLScript is in the Udon Extension Behaviours list in the Sacc Entity. Make sure that you are not missing any of the required parameters. Make sure you have a reasonable chunk distance as well. Unity starts shaking around > 2000m from the origin point of the scene. 
+	
+- Why is it that when I enter a plane, the scaling is weird?
+	- Please keep the PlayerParent scale to **1, 1, 1** at all times.
 	
 - Can I implement teleportation?
     - Teleportation is currently experimental at the moment due to the way how the system works. An enhancement script will be provided over time.
