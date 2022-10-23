@@ -1,6 +1,8 @@
 ﻿
+using SaccFlightAndVehicles;
 using UdonSharp;
 using UnityEngine;
+using UnityEngine.UI;
 using VRC.SDKBase;
 using VRC.Udon;
 
@@ -20,11 +22,13 @@ Treat this as the local player controller & settings.
 !!!IMPORTANT!!!!
 Add **ALL** SyncScripts in the SAV_SyncScript[].
 */
+[DefaultExecutionOrder(-11)]
+[UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
 public class ZHK_UIScript : UdonSharpBehaviour
 {
     [HideInInspector] public UdonBehaviour PlayerAircraft;
     [HideInInspector] public ZHK_OpenWorldMovementLogic OWML;
-    
+
     [InspectorName("REQUIRED: Map space object / マップオブジェクト")] public Transform Map; //<- Required
     public Transform EmptyTransform; // <- Just place an empty transform. Used for the respawning fix.
 
@@ -82,7 +86,39 @@ public class ZHK_UIScript : UdonSharpBehaviour
 
     [Header("For your needs if you have a group of objects to follow the current local player.")]
     public Transform PlayerFollowObject; // For a moving skybox or anything in regards to following a player.
+    
     private VRCPlayerApi localPlayer;
+    private UdonSharpBehaviour[] SAVs;
+
+    [Tooltip("Optional. Assign an animator to translate atmosphere. \n \n " +
+             "TranslationJP")]
+    public Animator AltitudeAnimator;
+    public string AltitudeParameter = "altitudeFloat";
+    public float MaximumAltitude = 60000;
+    
+    // private CollisionDetectionMode[] CDMs;
+    private int kIndex = 0;
+    
+    [Header("To set as 'kinematic' on vehicles that are 'away' from you")]
+    public bool DoKinematicCheck = true;
+    public float DistanceKinematicCheck = 3000f;
+
+    private float offsetHeight = 0f;
+    public float StationTimeout = 20f;
+
+    public bool CallResyncs = true;
+    public float resyncTimer = 15;
+    private float resyncTimerProper = 0f;
+
+    public Slider OWMLSlider;
+    public Text OWMLSliderText;
+
+    [Tooltip("Useful before uploading when you have like > 10 vehicles.")]public bool DisableVehiclesUponUpload = true;
+
+    public bool initialized = false;
+    public float initializedTimer = 15f;
+    public float initTimer = 0f;
+    
 
     // public UdonBehaviour TriggerScriptPlugin; // For future plugin
 
@@ -110,6 +146,33 @@ public class ZHK_UIScript : UdonSharpBehaviour
         allowPlayerOWML = false;
         #endif
 
+        SAVs = new UdonSharpBehaviour[saccSyncList.Length];
+        int xx = 0;
+        foreach (SAV_SyncScript_OWML x in saccSyncList)
+        {
+            SAVs[xx] = x.SAVControl;
+            xx = xx + 1;
+        }
+        
+        // CDMs = new CollisionDetectionMode[saccSyncList.Length];
+        // int xx2 = 0;
+        // foreach (SAV_SyncScript_OWML x in saccSyncList)
+        // {
+        //     Rigidbody t = ((Rigidbody) x.SAVControl.GetProgramVariable("VehicleRigidBody"));
+        //     if (t != null)
+        //     {
+        //         CDMs[xx2] = t.collisionDetectionMode;
+        //     }
+        //     xx2 = xx2 + 1;
+        // }
+        timer = (recheckInterval) / .9f;
+        SetOWMLValue();
+    }
+
+    public void SetOWMLValue()
+    {
+        ChunkDistance = OWMLSlider.value;
+        OWMLSliderText.text = OWMLSlider.value + "";
     }
 
     //Chunk update function - Used when entering a 'chunk' area. This will override every aircraft in this list to adjust according to your offset
@@ -124,16 +187,91 @@ public class ZHK_UIScript : UdonSharpBehaviour
                 continue;
             }
 
-            x.L_LastPingAdjustedPosition = (x.L_LastPingAdjustedPosition - mapCoords);
+            // x.L_LastPingAdjustedPosition = (x.L_LastPingAdjustedPosition - mapCoords);
+            x.Extrapolation_Raw = (x.Extrapolation_Raw - mapCoords);
             x.L_PingAdjustedPosition = (x.L_PingAdjustedPosition - mapCoords);
+        }
+        
+        foreach (var xstation in PlayerManager.Stations)
+        {
+            if (xstation.Player != null)
+            {
+                xstation.oldPos = xstation.CurrentPlayerPosition + Map.position;
+                xstation.stationObject.transform.position = xstation.CurrentPlayerPosition + Map.position;
+                Debug.Log("Updated Thingy: "+ xstation.PlayerID);
+            }
+        }
+    }
+
+    public void doKinematicChecks()
+    {
+        if (kIndex == SAVs.Length)
+        {
+            kIndex = 0;
+        }
+        
+        Rigidbody xx = ((Rigidbody) SAVs[kIndex].GetProgramVariable("VehicleRigidbody"));
+        
+        if (xx!=null &&  Vector3.Distance(localPlayer.GetPosition(), xx.position) > DistanceKinematicCheck)
+        {
+            // Debug.Log("Is Kinematic set loop " + kIndex);
+            SaccAirVehicle sav;
+            if ((!(bool) SAVs[kIndex].GetProgramVariable("Piloting") ||
+                 !(bool) SAVs[kIndex].GetProgramVariable("Passenger")))
+            {
+                if(!xx.isKinematic)
+                {
+                    xx.isKinematic = true;
+                    Debug.Log("Kinematic set to:" + xx.isKinematic);
+                }
+            }
+            else
+            {
+                if(xx.isKinematic)
+                {
+                    xx.isKinematic = false;
+                    Debug.Log("Kinematic set to:" + xx.isKinematic);
+                    // xx.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic; // return to continuous dynamic
+                }
+            }
+        }
+        else if (xx!=null && Vector3.Distance(localPlayer.GetPosition(), xx.position) < DistanceKinematicCheck)
+        {
+            if(xx.isKinematic)
+            {
+                xx.isKinematic = false;
+                Debug.Log("Kinematic set to:" + xx.isKinematic);
+                // xx.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic; // return to continuous dynamic
+            }
+        }
+
+        kIndex = kIndex + 1;
+    }
+    public override void OnPlayerRespawn(VRCPlayerApi player)
+    {
+        if (player.isLocal)
+        {
+            if(Skybox!=null) { Skybox.SetFloat("_AtmosphereThickness", 1); }
         }
     }
 
     void Update()
     {
+        offsetHeight = OWML!=null ? (-Map.position.y +  OWML.VehicleRigidBody.transform.position.y) * 3.28084f : (-Map.position.y + localPlayer.GetPosition().y) * 3.28084f ;
+
+        if (initTimer > initializedTimer && !initialized)
+        {
+            initialized = true;
+        }
+        else
+        {
+            initTimer = initTimer + Time.deltaTime;
+        }
+        
         if (stationObject == null)
         {
-            if (timer > recheckInterval)
+            if (timer > recheckInterval && (!Networking.IsOwner(PlayerManager.gameObject)) ||
+                ((Networking.IsOwner(PlayerManager.gameObject) && initialized)))
             {
                 Debug.Log("Player has no Station yet after " + recheckInterval + "s. Re-sending request.");
                 timer = 0f;
@@ -145,19 +283,34 @@ public class ZHK_UIScript : UdonSharpBehaviour
             }
         }
 
+        if (CallResyncs && Networking.IsOwner(PlayerManager.gameObject))
+        {
+            resyncTimerProper = resyncTimerProper + Time.deltaTime;
+            if (resyncTimerProper > resyncTimer)
+            {
+                Debug.Log("Resync Interval Call");
+                resyncTimerProper = 0f;
+                PlayerManager.resyncCall();
+            }
+        }
+
         // Useful for a moving skybox or if you need anything that needs to follow a player.
         if (PlayerFollowObject != null)
         {
             PlayerFollowObject.position = localPlayer.GetPosition();
         }
+        
+        if(DoKinematicCheck) doKinematicChecks();
+        
+        if (AltitudeAnimator != null)
+        {
+            AltitudeAnimator.SetFloat(AltitudeParameter, offsetHeight - MaximumAltitude);
+        }
 
-        if (Skybox != null && PlayerAircraft != null)
+        if (Skybox != null)
         {
             if (OWML != null)
             {
-                float offsetHeight = (-Map.position.y +
-                                      OWML.VehicleRigidBody.transform.position.y) * 3.28084f;
-
                 if (offsetHeight > AtmosphereDarkStart)
                 {
                     Skybox.SetFloat("_AtmosphereThickness",
@@ -178,11 +331,7 @@ public class ZHK_UIScript : UdonSharpBehaviour
 
             if (OWML == null)
             {
-                Skybox.SetFloat("_AtmosphereThickness", 1);
-                // if (CloudMat != null)
-                // {
-                //     CloudMat.SetFloat("_FromHeight", baseHeight);
-                // }
+                Skybox.SetFloat("_AtmosphereThickness",  baseAtmos - (( offsetHeight - AtmosphereDarkStart) / AtmosphereDarkMax));
             }
         }
     }
