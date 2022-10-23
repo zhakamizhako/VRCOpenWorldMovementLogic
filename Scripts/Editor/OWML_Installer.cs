@@ -110,11 +110,15 @@ public class OWML_Installer : EditorWindow
         targetParents = (Transform)EditorGUILayout.ObjectField("Target parents", targetParents, typeof(Transform), true);
         mapObject = (Transform)EditorGUILayout.ObjectField("map object", mapObject, typeof(Transform), true);
         playerRespawnHandler = (Transform)EditorGUILayout.ObjectField("player respawn handler", playerRespawnHandler, typeof(Transform), true);
-
+        
         if (GUILayout.Button(new GUIContent("Find above"), EditorStyles.miniButtonLeft, normalButtonLayout))
-        {
+        { 
             UpdateOWMLVariables();
         }
+        
+        EditorGUILayout.LabelField("Map Object should be the parent for your entire map that involves being moved around.");
+        EditorGUILayout.LabelField("(Terrains, Airports, planes, etc.)");
+        
         /*
         EditorGUILayout.HelpBox("Check list after set scene:\n" +
             "1.Every vehicle, map objects, and anything that has to be involved in the 'mapObject' are placed \n",MessageType.Info);
