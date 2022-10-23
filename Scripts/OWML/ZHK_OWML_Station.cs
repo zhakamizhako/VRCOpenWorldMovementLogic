@@ -31,7 +31,7 @@ public class ZHK_OWML_Station : UdonSharpBehaviour
     [System.NonSerializedAttribute] [UdonSynced] public Quaternion CurrentPlayerRotation;
     [System.NonSerializedAttribute] [UdonSynced, FieldChangeCallback(nameof(inVehicle))] public bool _inVehicle = false;
     [System.NonSerializedAttribute] [UdonSynced, FieldChangeCallback((nameof(PlayerID)))] public int _PlayerID = -1;
-    private Vector3 oldPos = Vector3.zero;
+    public Vector3 oldPos = Vector3.zero;
     private Quaternion oldRot;
     private float timerPlayerUpdate = 0f;
     private float distanceFromCenter = 0f;
@@ -39,6 +39,8 @@ public class ZHK_OWML_Station : UdonSharpBehaviour
     private Vector3 PlayerPosition = Vector3.zero;
     private Vector3 TemporaryVelocity = Vector3.zero;
     private bool nextFrame = false;
+
+    private float timeoutTimer = 0f;
     public int PlayerID
     {
         set
@@ -60,30 +62,41 @@ public class ZHK_OWML_Station : UdonSharpBehaviour
     {
         set
         {
+            _inVehicle = value;
             Debug.Log("In vehicle Called "+ value, this);
-            if (Player == null)
+            if (Networking.IsOwner(gameObject) && UIScript.stationObject == this)
             {
-                Debug.Log("Player null?");
-                return;
-            }
-
-            if (Networking.LocalPlayer == null)
-            {
-                _inVehicle = value;}
-            
-            if(Networking.IsOwner(gameObject)){ _inVehicle = value; }
-
-            if (Networking.LocalPlayer!=null &&  Networking.IsOwner(gameObject) && UIScript.stationObject==this)
-            {
-                _inVehicle = value;
                 if (!value)
                 {
                     stationObject.transform.position = Networking.LocalPlayer.GetPosition();
                     stationObject.PlayerMobility = VRCStation.Mobility.Mobile;
                     stationObject.UseStation(Networking.LocalPlayer);
                 }
-                RequestSerialization();
             }
+            // Debug.Log("In vehicle Called "+ value, this);
+            // if (Player == null)
+            // {
+            //     Debug.Log("Player null?");
+            //     return;
+            // }
+            //
+            // if (Networking.LocalPlayer == null)
+            // {
+            //     _inVehicle = value;}
+            //
+            // if(Networking.IsOwner(gameObject)){ _inVehicle = value; }
+            //
+            // if (Networking.LocalPlayer!=null &&  Networking.IsOwner(gameObject) && UIScript.stationObject==this)
+            // {
+            //     _inVehicle = value;
+            //     if (!value)
+            //     {
+            //         stationObject.transform.position = Networking.LocalPlayer.GetPosition();
+            //         stationObject.PlayerMobility = VRCStation.Mobility.Mobile;
+            //         stationObject.UseStation(Networking.LocalPlayer);
+            //     }
+            //     RequestSerialization();
+            // }
         }
         get => _inVehicle;
     }
@@ -100,6 +113,19 @@ public class ZHK_OWML_Station : UdonSharpBehaviour
 
     public void register(VRCPlayerApi z)
     {
+        if (z.playerId == Networking.LocalPlayer.playerId && UIScript.stationObject != null && UIScript.stationObject != this)
+        {
+            Debug.Log("Aborting Assignment on station due to a duplicate risk");
+            return;
+        }
+        // Start stuff
+        // UIScript = OWML_Player.UIScript;
+        // transform.position = Vector3.zero;
+        // stationObject.PlayerMobility = VRCStation.Mobility.Mobile;
+        // // stationObject.disableStationExit = true;
+        LocalPlayer = Networking.LocalPlayer;
+        // //
+        
         Debug.Log("Player REGISTER RECEIVED:" + z.displayName);
         Player = z;
         if (Player == Networking.LocalPlayer || Player.isLocal)
@@ -115,16 +141,36 @@ public class ZHK_OWML_Station : UdonSharpBehaviour
 
         PlayerID = z.playerId;
         RequestSerialization();
+
+        if (!isMe)
+        {
+            gameObject.SetActive(true);
+            Networking.SetOwner(z, gameObject);//transfer this chair to the other player.
+            SendCustomNetworkEvent(NetworkEventTarget.Owner, nameof(forceRegister));    
+        }
         
-        Networking.SetOwner(z, gameObject);//transfer this chair to the other player.
         if (isMe) // same as onOwnership transferred but locally. 
         {
+            gameObject.SetActive(true);
             UIScript.stationObject = this;
             isMe = true;
             PlayerID = LocalPlayer.playerId;
             RequestSerialization();
             SendCustomEventDelayedSeconds(nameof(useSeat),2);
+            SendCustomNetworkEvent(NetworkEventTarget.All, nameof(broadcastRegistered));
         }
+    }
+
+    public void forceRegister()
+    {
+        register(Networking.LocalPlayer);
+    }
+
+    public void broadcastRegistered()
+    {
+        Debug.Log("registered for "+ PlayerID);
+        gameObject.SetActive(true);
+        
     }
     public void unregister()
     {
@@ -135,8 +181,22 @@ public class ZHK_OWML_Station : UdonSharpBehaviour
         PlayerID = -1;
         playerSet = false;
 
-        RequestSerialization();
-        
+        if(Networking.IsOwner(gameObject))
+        {
+            RequestSerialization(); 
+            SendCustomNetworkEvent(NetworkEventTarget.All, nameof(publicUnregister));
+        }
+        gameObject.SetActive(false);
+    }
+
+    public void publicUnregister()
+    {
+        inVehicle = false;
+        CurrentPlayerPosition = Vector3.zero;
+        Player = null;
+        PlayerID = -1;
+        playerSet = false;
+        gameObject.SetActive(false);
     }
 
     public override void OnPlayerRespawn(VRCPlayerApi player)
@@ -158,6 +218,7 @@ public class ZHK_OWML_Station : UdonSharpBehaviour
             if (UIScript.stationObject == null)
             {
                 Debug.Log("OnOwnershipcall IN!");
+                gameObject.SetActive(true);
                 UIScript.stationObject = this;
                 isMe = true;
                 Player = Networking.LocalPlayer;
@@ -186,6 +247,7 @@ public class ZHK_OWML_Station : UdonSharpBehaviour
     public void OwnershipRecheck()
     {
         Debug.Log("Player ID:" + Networking.LocalPlayer.playerId + "- Ownership recheck : HAS STATION:"+(UIScript.stationObject? "Yes" : "No"+ "And do I own it? "+ (Networking.IsOwner(gameObject))));
+        gameObject.SetActive(true);
         if (UIScript.stationObject == null && Networking.IsOwner(gameObject))
         {
             register(Networking.LocalPlayer);
@@ -235,17 +297,29 @@ public class ZHK_OWML_Station : UdonSharpBehaviour
 
     public void checkOwner() // function call to 'synchronize' the player that's not in a station, broadcasts to the owner that he has to be in one.
     {
-        if (Networking.IsOwner(gameObject))
+        if (Networking.IsOwner(gameObject) && UIScript.stationObject==this)
         {
             if(Player==null)  Player = Networking.LocalPlayer;
             stationObject.transform.position = Player.GetPosition();
             stationObject.transform.rotation = Player.GetRotation();
-            if(!inVehicle) stationObject.UseStation(Player);   
+            Debug.Log("Resynchronize Call received for station "+gameObject.name +" of player:"+ Player.playerId + " for station player id:"+ PlayerID);
+            if(!inVehicle) SendCustomNetworkEvent(NetworkEventTarget.All, nameof(useSeat));   
         }
     }
     
     void Update()
     {
+        if (PlayerID == -1 && UIScript.stationObject != this)
+        {
+            timeoutTimer = timeoutTimer + Time.deltaTime;
+
+            if (timeoutTimer > UIScript.StationTimeout)
+            {
+                Debug.Log("Deactivating: "+gameObject.name + " due to timeout.");
+                timeoutTimer = 0;
+                gameObject.SetActive(false);
+            }
+        }
         // if (Networking.IsOwner(gameObject) && UIScript.stationObject!=this)
         // {
         //     unregister();
@@ -282,7 +356,7 @@ public class ZHK_OWML_Station : UdonSharpBehaviour
                 if ((!inVehicle || UIScript.syncEvenInVehicle))
                 {
                     PlayerPosition = Networking.LocalPlayer.GetPosition();
-                    if(!Networking.IsClogged && timerPlayerUpdate > UIScript.PlayerUpdateRate)
+                    if(/*!Networking.IsClogged && */timerPlayerUpdate > UIScript.PlayerUpdateRate)
                     {
                         CurrentPlayerPosition = -UIScript.Map.position + Networking.LocalPlayer.GetPosition();  
                         // stationObject.transform.position = PlayerPosition; //<-- StationObject syncing 'calling it a day'
@@ -291,20 +365,19 @@ public class ZHK_OWML_Station : UdonSharpBehaviour
                         RequestSerialization();
                         timerPlayerUpdate = 0f;
                     }
-
-                    if (UIScript.allowPlayerOWML)
+                }
+                
+                if (!inVehicle && UIScript.allowPlayerOWML) // Player Teleport MUST NOT BE CALLED WHILE FLYING! 
+                {
+                    if (Vector3.Distance(PlayerPosition, Vector3.zero) > UIScript.ChunkDistance)
                     {
-                        if (Vector3.Distance(PlayerPosition, Vector3.zero) > UIScript.ChunkDistance)
-                        {
-                            var tempAnchor = PlayerPosition;
-                            UIScript.Map.position = UIScript.Map.position - PlayerPosition;
-                            TemporaryVelocity = Networking.LocalPlayer.GetVelocity();
-                            Networking.LocalPlayer.TeleportTo(Vector3.zero, Networking.LocalPlayer.GetRotation());
-                            UIScript.doChunkUpdate(tempAnchor);
-                            nextFrame = false;
-                        }
+                        var tempAnchor = PlayerPosition;
+                        UIScript.Map.position = UIScript.Map.position - PlayerPosition;
+                        TemporaryVelocity = Networking.LocalPlayer.GetVelocity();
+                        Networking.LocalPlayer.TeleportTo(Vector3.zero, Networking.LocalPlayer.GetRotation());
+                        UIScript.doChunkUpdate(tempAnchor);
+                        nextFrame = false;
                     }
-
                 }
 
                 timerPlayerUpdate = timerPlayerUpdate + Time.deltaTime;
