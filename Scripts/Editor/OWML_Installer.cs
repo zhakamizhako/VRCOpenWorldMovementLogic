@@ -8,6 +8,7 @@ using SaccFlightAndVehicles;
 using VRC.SDK3.Components;
 using VRC.Udon;
 
+#if UNITY_EDITOR
 public class OWML_Installer : EditorWindow
 {
     private readonly BuildTargetGroup[] buildTargetGroups = 
@@ -164,6 +165,33 @@ public class OWML_Installer : EditorWindow
                     }
                 }
         }
+
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                if (GUILayout.Button(new GUIContent("Update All Scripts"), EditorStyles.miniButtonLeft, normalButtonLayout))
+                {
+                    foreach (var x in vehicleList)
+                    {
+                        ModifyPlane(x.gameObject);
+                    }
+                }
+                if (GUILayout.Button(new GUIContent("Update All Particles"), EditorStyles.miniButtonLeft, normalButtonLayout))
+                {
+                    foreach (var x in vehicleList)
+                    {
+                        ModifyParticlePlane(x.gameObject);
+                    }
+                }
+                if (GUILayout.Button(new GUIContent("Update All Weapons"), EditorStyles.miniButtonLeft, normalButtonLayout))
+                {
+                    foreach (var x in vehicleList)
+                    {
+                        ModifyWeapon(x.gameObject);
+                    }
+                }
+            }
+
+
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("Step 5: \"update UIscript\", this will sync all OWMLSync in scene to UIScript.");
         if (GUILayout.Button(new GUIContent("update UIscript"), EditorStyles.miniButtonLeft, normalButtonLayout))
@@ -228,12 +256,15 @@ public class OWML_Installer : EditorWindow
                 sceneDescriptor.spawns = new Transform[] { playerRespawnHandler };
             }
         }
-        if (GUILayout.Button(new GUIContent("set cam rander dst"), EditorStyles.miniButtonLeft, normalButtonLayout))
+        if (GUILayout.Button(new GUIContent("set cam render distance"), EditorStyles.miniButtonLeft, normalButtonLayout))
         {
             var cameras = GameObject.FindObjectOfType<Camera>();
-            cameras.farClipPlane = 50000;
+            cameras.farClipPlane = 900000;
+            cameras.nearClipPlane = 0.1f;
         }
         #endregion
+        
+        EditorGUILayout.LabelField("UI Installer by 西改改Yuxi TW: @YUXI917", EditorStyles.boldLabel);
 
     }
 
@@ -247,13 +278,8 @@ public class OWML_Installer : EditorWindow
         var SAVControl = vehicleObject.GetComponentInChildren<SaccAirVehicle>();
         if(SAVControl!=null) SAVControl.RepeatingWorld = false; //Added a checker if not SAVControl based vehicle
         var SGVControl = vehicleObject.GetComponentInChildren<SaccGroundVehicle>();
+        var SSVControl = vehicleObject.GetComponentInChildren<SaccSeaVehicle>();
 
-        //type of SAVControl should be u# behaviour, but ZHK_OWML.cs requires a udon behaviour? 
-        //here is a workaround
-        //var syncScriptComponent = vehicleObject.GetComponentInChildren<SAV_SyncScript>();
-        //OWMLComponent.EngineControl = syncScriptComponent.SAVControl as UdonBehaviour;
-        //emmmmm... not work
-        
         //Add check if OWMLComponent is already present or not.
         GameObject OWMLScriptObject;
         ZHK_OpenWorldMovementLogic OWMLComponent = vehicleObject.GetComponentInChildren<ZHK_OpenWorldMovementLogic>();
@@ -268,8 +294,9 @@ public class OWML_Installer : EditorWindow
             
         }
 
-        if(SAVControl!=null) OWMLComponent.EngineControl = SAVControl.gameObject.GetComponent<UdonBehaviour>(); // If Aircraft
-        if(SGVControl!=null) OWMLComponent.EngineControl = SGVControl.gameObject.GetComponent<UdonBehaviour>(); // If Ground Vehicle
+        if (SAVControl!=null) OWMLComponent.EngineControl = SAVControl.gameObject.GetComponent<UdonBehaviour>(); // If Aircraft
+        if (SGVControl!=null) OWMLComponent.EngineControl = SGVControl.gameObject.GetComponent<UdonBehaviour>(); // If Ground Vehicle
+        if (SSVControl != null) OWMLComponent.EngineControl = SSVControl.gameObject.GetComponent<UdonBehaviour>(); // If SaccSeaVehicle
         
         OWMLComponent.UIScript = UIScript;
         OWMLComponent.targetParent = targetParents;
@@ -292,8 +319,26 @@ public class OWML_Installer : EditorWindow
         }
 
         OWMLSyncScriptComponent.OWML = OWMLComponent;
-        OWMLSyncScriptComponent.SAVControl =
-            (SAVControl != null ? SAVControl : ((UdonSharpBehaviour)SGVControl!=null ? (UdonSharpBehaviour) SGVControl : null));
+        // OWMLSyncScriptComponent.SAVControl =
+        //     (SAVControl != null ? SAVControl : 
+        //         ((UdonSharpBehaviour)SGVControl!=null ? (UdonSharpBehaviour) SGVControl : (SSVControl!=null ? (UdonSharpBehaviour)SSVControl : null) ));
+        //
+        
+        if (SAVControl != null)
+        {
+            OWMLSyncScriptComponent.SAVControl = SAVControl;
+        }
+
+        if (SGVControl != null)
+        {
+            OWMLSyncScriptComponent.SAVControl =  SGVControl;
+        }
+
+        if (SSVControl != null)
+        {
+            OWMLSyncScriptComponent.SAVControl = SSVControl;
+        }
+        
         var syncScriptFound = vehicleObject.GetComponentInChildren<SAV_SyncScript>();
         if (syncScriptFound != null)
         {
@@ -521,3 +566,5 @@ public class OWML_Installer : EditorWindow
         playerRespawnHandler = GameObject.FindObjectOfType<ZHK_PlayerRespawnHandler>().transform;
     }
 }
+
+#endif
