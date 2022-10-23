@@ -118,6 +118,15 @@ public class ZHK_OWML_Player : UdonSharpBehaviour
         }
     }
 
+    public void resyncCall()
+    {
+        Debug.Log("Resynchronize Call!");
+        foreach (var x in Stations)
+        {
+            x.SendCustomNetworkEvent(NetworkEventTarget.All, nameof(x.checkOwner));
+        }
+    }
+
     public void ownershipRechecks()
     {
         foreach (var x in Stations)
@@ -166,6 +175,8 @@ public class ZHK_OWML_Player : UdonSharpBehaviour
         }
         if(target == -1){ return; }
         Debug.Log("Player Unregister:" + xx.displayName);
+        // Stations[target].gameObject.GetComponent<UdonBehaviour>().SendCustomNetworkEvent(NetworkEventTarget.All, "unregister");
+        // SendCustomNetworkEvent( NetworkEventTarget.All,Stations[target].unregister());   
         Stations[target].unregister();
     }
 }
