@@ -12,7 +12,7 @@ using SaccFlightAndVehicles;
 // SAV_SyncScript - Modified Syncscript for SaccFlight
 // Contact: Twitter: @zzhako / Discord: ZhakamiZhako#2147
 [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
-[DefaultExecutionOrder(-21)]
+[DefaultExecutionOrder(9)]
 public class ZHK_OpenWorldMovementLogic : UdonSharpBehaviour
 {
     [Tooltip("Required: The Aircraft's SAVController \n \n 必須 航空機のSAVController")]
@@ -60,6 +60,8 @@ public class ZHK_OpenWorldMovementLogic : UdonSharpBehaviour
         SGV = EngineControl.gameObject.GetComponent<SaccGroundVehicle>();
         SSV = EngineControl.gameObject.GetComponent<SaccSeaVehicle>();
         
+        // Debug.Log(UIScript, UIScript);
+        // Debug.Log(UIScript.Map, UIScript.Map);
             if (UIScript.Map != null)
             {
                 Map = UIScript.Map;
@@ -69,10 +71,29 @@ public class ZHK_OpenWorldMovementLogic : UdonSharpBehaviour
                 Debug.LogError("[ZHK_OWML] MAP NOT FOUND. THIS SCRIPT WILL NOT WORK WITHOUT IT.", this);
                 gameObject.SetActive(false);
             }
+
+            if (Networking.LocalPlayer == null && UIScript.DisableVehiclesUponUpload ) // Disable the gameobjects when uploading cause extreme lag. really. 
+            {
+                Entity.gameObject.SetActive(false);
+            }
     }
 
     public void SFEXT_L_EntityStart()
     {
+        SAV = EngineControl.gameObject.GetComponent<SaccAirVehicle>();
+        SGV = EngineControl.gameObject.GetComponent<SaccGroundVehicle>();
+        SSV = EngineControl.gameObject.GetComponent<SaccSeaVehicle>();
+        
+        if (UIScript.Map != null)
+        {
+            Map = UIScript.Map;
+        }
+        else
+        {
+            Debug.LogError("[ZHK_OWML] MAP NOT FOUND. THIS SCRIPT WILL NOT WORK WITHOUT IT.", this);
+            gameObject.SetActive(false);
+        }
+        
         gameObject.SetActive(true);
         Entity = (SaccEntity)EngineControl.GetProgramVariable("EntityControl");
         VehicleRigidBody = (Rigidbody)EngineControl.GetProgramVariable("VehicleRigidbody");
@@ -83,7 +104,7 @@ public class ZHK_OpenWorldMovementLogic : UdonSharpBehaviour
         originalParent = Entity.transform.parent;
         PosSync = -Map.transform.position + AnchorCoordsPosition;
         
-        if(SAV!=null) SAV.UseAtmospherePositionOffset = UIScript.UseAtmosphere;
+        if(SAV) SAV.UseAtmospherePositionOffset = UIScript.UseAtmosphere;
     }
 
     // public void SFEXT_O_RespawnButton()
@@ -182,6 +203,7 @@ public class ZHK_OpenWorldMovementLogic : UdonSharpBehaviour
         {
             UIScript.PlayerAircraft = EngineControl;
             UIScript.OWML = this;
+            if(UIScript.stationObject!=null) UIScript.stationObject.inVehicle = true;
         }
     }
 
@@ -195,6 +217,8 @@ public class ZHK_OpenWorldMovementLogic : UdonSharpBehaviour
             Debug.Log("EXIIIIT");
             Entity.transform.SetParent(originalParent);
             moved = false;
+            
+            if(UIScript.stationObject!=null) UIScript.stationObject.inVehicle = false;
         }
     }
     
