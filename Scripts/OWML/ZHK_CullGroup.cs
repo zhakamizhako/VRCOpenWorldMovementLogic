@@ -6,6 +6,7 @@ using VRC.Udon;
 
 // ZHK Cull by distance and angle
 // Contact: Twitter: @zzhako / Discord: ZhakamiZhako#2147
+[UdonBehaviourSyncMode(BehaviourSyncMode.None)]
 public class ZHK_CullGroup : UdonSharpBehaviour
 {
     public float RenderDistance = 200000;
