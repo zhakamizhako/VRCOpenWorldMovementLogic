@@ -4,6 +4,7 @@ using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
 
+[UdonBehaviourSyncMode(BehaviourSyncMode.None)]
 public class ZHK_OWML_Teleporter : UdonSharpBehaviour
 {
     public ZHK_UIScript UIScript;
