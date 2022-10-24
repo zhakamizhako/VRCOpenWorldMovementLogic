@@ -10,8 +10,8 @@ public class SAV_SyncScript_OWML : UdonSharpBehaviour
 {
     // whispers to Zwei, "it's okay"
     public UdonSharpBehaviour SAVControl;
-
-    [Tooltip("Delay between updates in seconds")] [Range(0.05f, 1f)]
+        [Tooltip("Delay between updates in seconds")]
+        [Range(0.05f, 1f)]
     public float updateInterval = 0.2f;
 
     [Tooltip("Delay between updates in seconds when the sync has entered idle mode")]
@@ -19,20 +19,14 @@ public class SAV_SyncScript_OWML : UdonSharpBehaviour
 
     [Tooltip("Freeze the vehicle's position when it's dead? Turn off for boats that sink etc")]
     public bool FreezePositionOnDeath = true;
-
-    [Tooltip(
-        "If vehicle moves less than this distance since it's last update, it'll be considered to be idle, may need to be increased for vehicles that want to be idle on water. If the vehicle floats away sometimes, this value is probably too big")]
+        [Tooltip("If vehicle moves less than this distance since it's last update, it'll be considered to be idle, may need to be increased for vehicles that want to be idle on water. If the vehicle floats away sometimes, this value is probably too big")]
     public float IdleMovementRange = .35f;
 
     [Tooltip("If vehicle rotates less than this many degrees since it's last update, it'll be considered to be idle")]
     public float IdleRotationRange = 5f;
-
-    [Tooltip(
-        "Angle Difference between movement direction and rigidbody velocity that will cause the vehicle to teleport instead of interpolate")]
+        [Tooltip("Angle Difference between movement direction and rigidbody velocity that will cause the vehicle to teleport instead of interpolate")]
     public float TeleportAngleDifference = 20;
-
-    [Tooltip(
-        "How much vehicle accelerates extra towards its 'raw' position when not owner in order to correct positional errors")]
+        [Tooltip("How much vehicle accelerates extra towards its 'raw' position when not owner in order to correct positional errors")]
     public float CorrectionTime = 8f;
 
     [Tooltip("How quickly non-owned vehicle's velocity vector lerps towards its new value")]
@@ -40,23 +34,17 @@ public class SAV_SyncScript_OWML : UdonSharpBehaviour
 
     [Tooltip("Strength of force to stop correction overshooting target")]
     public float CorrectionDerivStrength = 150f;
-
-    [Tooltip(
-        "How much vehicle accelerates extra towards its 'raw' rotation when not owner in order to correct rotational errors")]
+        [Tooltip("How much vehicle accelerates extra towards its 'raw' rotation when not owner in order to correct rotational errors")]
     public float CorrectionTime_Rotation = 1f;
 
     [Tooltip("How quickly non-owned vehicle's rotation slerps towards its new value")]
     public float RotationSpeedLerpTime = 10f;
-
-    [Tooltip(
-        "Teleports owned vehicles forward by real time * velocity if frame takes too long to render and simulation slows down. Prevents other players from seeing you warp.")]
+        [Tooltip("Teleports owned vehicles forward by real time * velocity if frame takes too long to render and simulation slows down. Prevents other players from seeing you warp.")]
     public bool AntiWarp = true;
-
-    [Header("DEBUG:")] [Tooltip("LEAVE THIS EMPTY UNLESS YOU WANT TO TEST THE NETCODE OFFLINE IN TEST MODE")]
+        [Header("DEBUG:")]
+        [Tooltip("LEAVE THIS EMPTY UNLESS YOU WANT TO TEST THE NETCODE OFFLINE IN TEST MODE")]
     public Transform TestTransform;
-
-    [Tooltip(
-        "UNCOMMENT THE CODE TO USE THIS. LEAVE THIS EMPTY UNLESS YOU WANT TO TEST THE NETCODE OFFLINE IN TEST MODE, If TestTransform is empty and this is filled you can see the raw position in multiplayer")]
+        [Tooltip("UNCOMMENT THE CODE TO USE THIS. LEAVE THIS EMPTY UNLESS YOU WANT TO TEST THE NETCODE OFFLINE IN TEST MODE, If TestTransform is empty and this is filled you can see the raw position in multiplayer")]
     public Transform TestTransform_Raw;
 
     private Transform VehicleTransform;
@@ -140,14 +128,9 @@ public class SAV_SyncScript_OWML : UdonSharpBehaviour
         }
 
         if (!TestTransform)
-        {
-            TestTransform = VehicleRigid.transform;
-        }
+            { TestTransform = VehicleRigid.transform; }
 #if UNITY_EDITOR
-        else
-        {
-            TestMode = true;
-        }
+            else { TestMode = true; }
 #endif
     }
 
@@ -156,8 +139,7 @@ public class SAV_SyncScript_OWML : UdonSharpBehaviour
         Initialized = true;
         VehicleTransform = ((SaccEntity) SAVControl.GetProgramVariable("EntityControl")).transform;
         VehicleRigid = (Rigidbody) SAVControl.GetProgramVariable("VehicleRigidbody");
-        Extrapolation_Raw /* = L_LastPingAdjustedPosition */ =
-            L_PingAdjustedPosition = O_Position = VehicleTransform.position;
+            Extrapolation_Raw /* = L_LastPingAdjustedPosition */ = L_PingAdjustedPosition = O_Position = VehicleTransform.position;
         /* O_LastRotation2 = */
         O_LastRotation = O_Rotation_Q = VehicleTransform.rotation;
         VRCPlayerApi localPlayer = Networking.LocalPlayer;
@@ -178,20 +160,16 @@ public class SAV_SyncScript_OWML : UdonSharpBehaviour
             }
         }
         else
-        {
-            //play mode in editor
+            {//play mode in editor
             IsOwner = true;
             VehicleRigid.drag = 9999;
             VehicleRigid.angularDrag = 9999;
         }
 
         ResetSyncTimes();
-        O_LastUpdateTime =
-            L_UpdateTime = lastframetime = lastframetime_extrap = Networking.GetServerTimeInMilliseconds();
+            O_LastUpdateTime = L_UpdateTime = lastframetime = lastframetime_extrap = Networking.GetServerTimeInMilliseconds();
         O_LastUpdateTime -= updateInterval;
-        EnterIdleModeNumber =
-            Mathf.FloorToInt(IdleModeUpdateInterval /
-                             updateInterval); //enter idle after IdleModeUpdateInterval seconds of being still
+            EnterIdleModeNumber = Mathf.FloorToInt(IdleModeUpdateInterval / updateInterval);//enter idle after IdleModeUpdateInterval seconds of being still
         //script is disabled for 5 seconds to make sure nothing moves before everything is initialized    
         SendCustomEventDelayedSeconds(nameof(ActivateScript), 5);
     }
@@ -208,17 +186,14 @@ public class SAV_SyncScript_OWML : UdonSharpBehaviour
         else
         {
             VehicleRigid.isKinematic = true;
-            VehicleRigid.collisionDetectionMode = CollisionDetectionMode.Continuous;
+                VehicleRigid.collisionDetectionMode = CollisionDetectionMode.Discrete;
         }
 
         nextUpdateTime = StartupServerTime + (double) (Time.time - StartupLocalTime + Random.Range(0f, updateInterval));
     }
 
     public void SFEXT_L_OwnershipTransfer()
-    {
-        ExitIdleMode();
-    }
-
+        { ExitIdleMode(); }
     public void SFEXT_O_TakeOwnership()
     {
         L_UpdateTime = lastframetime = StartupServerTime + (double) (Time.time - StartupLocalTime);
@@ -232,8 +207,7 @@ public class SAV_SyncScript_OWML : UdonSharpBehaviour
 
     public void SFEXT_O_LoseOwnership()
     {
-        O_LastUpdateTime = L_UpdateTime =
-            lastframetime_extrap = StartupServerTime + (double) (Time.time - StartupLocalTime);
+            O_LastUpdateTime = L_UpdateTime = lastframetime_extrap = StartupServerTime + (double)(Time.time - StartupLocalTime);
         O_LastUpdateTime -= updateInterval;
         IsOwner = false;
         Extrapolation_Raw /* = L_LastPingAdjustedPosition */ = L_PingAdjustedPosition = O_Position;
@@ -241,7 +215,7 @@ public class SAV_SyncScript_OWML : UdonSharpBehaviour
         RotExtrapolation_Raw = RotationLerper = /* O_LastRotation2 = */ O_LastRotation = O_Rotation_Q;
         LastCurAngMom = CurAngMom = Quaternion.identity;
         VehicleRigid.isKinematic = true;
-        VehicleRigid.collisionDetectionMode = CollisionDetectionMode.Continuous;
+            VehicleRigid.collisionDetectionMode = CollisionDetectionMode.Discrete;
         VehicleRigid.drag = 9999;
         VehicleRigid.angularDrag = 9999;
         UpdatesSentWhileStill = 0;
@@ -260,20 +234,14 @@ public class SAV_SyncScript_OWML : UdonSharpBehaviour
     }
 
     public void SFEXT_G_PilotExit()
-    {
-        Occupied = false;
-    }
-
+        { Occupied = false; }
     public void SFEXT_G_TakeOff()
     {
         Grounded = false;
     }
 
     public void SFEXT_O_PilotExit()
-    {
-        Piloting = false;
-    }
-
+        { Piloting = false; }
     public void SFEXT_O_RespawnButton()
     {
         ResetSyncTimes();
@@ -286,8 +254,7 @@ public class SAV_SyncScript_OWML : UdonSharpBehaviour
         UpdatesSentWhileStill = 0;
         //make it teleport instead of interpolating
         ExtrapolationDirection = Vector3.zero;
-        Extrapolation_Raw = VehicleTransform.position /* = L_LastPingAdjustedPosition */ =
-            L_PingAdjustedPosition = O_LastPosition = O_Position;
+            Extrapolation_Raw = VehicleTransform.position /* = L_LastPingAdjustedPosition */ = L_PingAdjustedPosition = O_LastPosition = O_Position;
         RotationLerper = VehicleTransform.rotation = /* O_LastRotation2 = */ O_LastRotation = O_Rotation_Q;
         ExtrapDirection_Smooth = Vector3.zero;
         RotExtrapDirection_Smooth = Quaternion.identity;
@@ -319,8 +286,7 @@ public class SAV_SyncScript_OWML : UdonSharpBehaviour
                         //When setting rigidbody position, although it looks more jerky when flying side-by-side, it's more accurate speed-wise
                         //and hopefully doesn't cause rapid speed-up-slow-down if you keep on transitioning in and out of the parent if statement.
                         //Setting transform position to rigidbody position+, so that position is correct if data is sent this frame (the result should be the jerky, speed-accurate one)
-                        VehicleTransform.position = VehicleRigid.position +
-                            (VehicleRigid.velocity * (float) accuratedelta) - RigidMovedAmount;
+                            VehicleTransform.position = VehicleRigid.position + (VehicleRigid.velocity * (float)accuratedelta) - RigidMovedAmount;
                         //is there a best of both worlds solution?
                     }
                 }
@@ -341,9 +307,7 @@ public class SAV_SyncScript_OWML : UdonSharpBehaviour
                     {
                         UpdatesSentWhileStill++;
                         if (UpdatesSentWhileStill > EnterIdleModeNumber)
-                        {
-                            EnterIdleMode();
-                        }
+                            { EnterIdleMode(); }
                     }
                     else
                     {
@@ -419,14 +383,12 @@ public class SAV_SyncScript_OWML : UdonSharpBehaviour
                                 / updateInterval;
         //extrapolated position based on time passed since update
         Vector3 VelEstimate = L_CurVel + (Acceleration * TimeSinceUpdate);
-        ExtrapDirection_Smooth = Vector3.Lerp(ExtrapDirection_Smooth, VelEstimate + Correction + Deriv,
-            SpeedLerpTime * deltatime);
+            ExtrapDirection_Smooth = Vector3.Lerp(ExtrapDirection_Smooth, VelEstimate + Correction + Deriv, SpeedLerpTime * deltatime);
 
         //rotate using similar method to movement (no deriv, correction is done with a simple slerp after)
         Quaternion FrameRotAccel = RealSlerp(Quaternion.identity, CurAngMomAcceleration, TimeSinceUpdate);
         Quaternion AngMomEstimate = FrameRotAccel * CurAngMom;
-        RotExtrapDirection_Smooth =
-            RealSlerp(RotExtrapDirection_Smooth, AngMomEstimate, RotationSpeedLerpTime * deltatime);
+            RotExtrapDirection_Smooth = RealSlerp(RotExtrapDirection_Smooth, AngMomEstimate, RotationSpeedLerpTime * deltatime);
 
         //apply positional update
         Extrapolation_Raw += ExtrapolationDirection * deltatime;
@@ -437,8 +399,7 @@ public class SAV_SyncScript_OWML : UdonSharpBehaviour
         Quaternion FrameRotExtrap_Smooth = RealSlerp(Quaternion.identity, RotExtrapDirection_Smooth, deltatime);
         TestTransform.rotation = FrameRotExtrap_Smooth * TestTransform.rotation;
         //correct rotational desync
-        TestTransform.rotation =
-            RealSlerp(TestTransform.rotation, RotExtrapolation_Raw, CorrectionTime_Rotation * deltatime);
+            TestTransform.rotation = RealSlerp(TestTransform.rotation, RotExtrapolation_Raw, CorrectionTime_Rotation * deltatime);
 #if UNITY_EDITOR
         if (TestTransform_Raw)
         {
@@ -449,15 +410,9 @@ public class SAV_SyncScript_OWML : UdonSharpBehaviour
     }
 
     private void EnterIdleMode()
-    {
-        IdleUpdateMode = true;
-    }
-
+        { IdleUpdateMode = true; }
     private void ExitIdleMode()
-    {
-        IdleUpdateMode = false;
-    }
-
+        { IdleUpdateMode = false; }
     public override void OnDeserialization()
     {
         if (!IsOwner) //only do anything if OnDeserialization was for this script
@@ -473,9 +428,7 @@ public class SAV_SyncScript_OWML : UdonSharpBehaviour
     private void FixedUpdate()
     {
         if (TestMode)
-        {
-            DeserializationCheck();
-        }
+            { DeserializationCheck(); }
     }
 #endif
     private bool Deserialized = false;
@@ -532,20 +485,12 @@ public class SAV_SyncScript_OWML : UdonSharpBehaviour
         if (O_CurVel.sqrMagnitude == 0)
         {
             if (O_CurVelLast.sqrMagnitude != 0)
-            {
-                L_CurVel = Vector3.zero;
-                SetVelZero = true;
-            }
+                { L_CurVel = Vector3.zero; SetVelZero = true; }
             else
-            {
-                L_CurVel = (O_Position - O_LastPosition) * speednormalizer;
-            }
+                { L_CurVel = (O_Position - O_LastPosition) * speednormalizer; }
         }
         else
-        {
-            L_CurVel = O_CurVel;
-        }
-
+            { L_CurVel = O_CurVel; }
         O_CurVelLast = O_CurVel;
         Acceleration = (L_CurVel - L_CurVelLast); //acceleration is difference in velocity
 
@@ -564,27 +509,20 @@ public class SAV_SyncScript_OWML : UdonSharpBehaviour
         //if direction of acceleration changed by more than 90 degrees, just set zero to prevent bounce effect, the vehicle likely just crashed into a wall.
         //+ if idlemode, disable acceleration because it brakes
         if (Vector3.Dot(Acceleration, LastAcceleration) < 0 || SetVelZero || O_CurVel.magnitude < IdleMovementRange)
-        {
-            Acceleration = Vector3.zero;
-            CurAngMomAcceleration = Quaternion.identity;
-        }
+            { Acceleration = Vector3.zero; CurAngMomAcceleration = Quaternion.identity; }
 
         RotationExtrapolationDirection = CurAngMomAcceleration * CurAngMom;
         Quaternion PingRotExtrap = RealSlerp(Quaternion.identity, RotationExtrapolationDirection, Ping);
         L_PingAdjustedRotation = PingRotExtrap * O_Rotation_Q;
         Quaternion FrameRotExtrap = RealSlerp(Quaternion.identity, RotationExtrapolationDirection, -Time.deltaTime);
-        RotExtrapolation_Raw =
-            FrameRotExtrap * L_PingAdjustedRotation; //undo 1 frame worth of movement because its done again in update()
+            RotExtrapolation_Raw = FrameRotExtrap * L_PingAdjustedRotation;//undo 1 frame worth of movement because its done again in update()
 
         //tell the SaccAirVehicle the velocity value because it doesn't sync it itself
         SAVControl.SetProgramVariable("CurrentVel", L_CurVel);
         ExtrapolationDirection = L_CurVel + Acceleration;
         L_PingAdjustedPosition = (OWML ? O_Position + OWML.Map.position : O_Position) + (ExtrapolationDirection * Ping);
 
-        Extrapolation_Raw =
-            L_PingAdjustedPosition -
-            (ExtrapolationDirection *
-             Time.deltaTime); //undo 1 frame worth of movement because its done again in update()
+            Extrapolation_Raw = L_PingAdjustedPosition - (ExtrapolationDirection * Time.deltaTime);//undo 1 frame worth of movement because its done again in update()
 
         //if we're going one way but moved the other, we must have teleported.
         //set values to the same thing for Current and Last to make teleportation instead of interpolation
@@ -654,6 +592,7 @@ public class SAV_SyncScript_OWML : UdonSharpBehaviour
         if (Quaternion.Dot(p, q) < 0)
         {
             float angle = Quaternion.Angle(p, q); //quaternion.angle also checks shortest route
+                if (angle == 0f) { return p; }
             float newvalue = (360f - angle) / angle;
             return Quaternion.SlerpUnclamped(p, q, -t * newvalue);
         }
