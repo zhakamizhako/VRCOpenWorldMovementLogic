@@ -49,11 +49,11 @@ public class ZHK_CullGroup : UdonSharpBehaviour
 
         if (distance > RenderDistance || tempAngleCheck > cullAngle)
         {
-            CullObjects[index].SetActive(false);
+            if(CullObjects[index].activeSelf) CullObjects[index].SetActive(false);
         }
         else
         {
-            CullObjects[index].SetActive(true);
+            if(!CullObjects[index].activeSelf) CullObjects[index].SetActive(true);
         }
 
     }

@@ -1,4 +1,4 @@
-﻿using UdonSharp;
+using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
@@ -303,6 +303,8 @@ public class ZHK_OWML_Station : UdonSharpBehaviour
             stationObject.transform.position = Player.GetPosition();
             stationObject.transform.rotation = Player.GetRotation();
             Debug.Log("Resynchronize Call received for station "+gameObject.name +" of player:"+ Player.playerId + " for station player id:"+ PlayerID);
+            TemporaryVelocity = Networking.LocalPlayer.GetVelocity();
+            nextFrame = false;
             if(!inVehicle) SendCustomNetworkEvent(NetworkEventTarget.All, nameof(useSeat));   
         }
     }

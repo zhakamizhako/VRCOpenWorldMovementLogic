@@ -119,6 +119,7 @@ public class ZHK_UIScript : UdonSharpBehaviour
     public float initializedTimer = 15f;
     public float initTimer = 0f;
     
+    public bool doPlayerSkybox = false;
 
     // public UdonBehaviour TriggerScriptPlugin; // For future plugin
 
@@ -171,8 +172,11 @@ public class ZHK_UIScript : UdonSharpBehaviour
 
     public void SetOWMLValue()
     {
+        if (OWMLSlider != null)
+        {
         ChunkDistance = OWMLSlider.value;
         OWMLSliderText.text = OWMLSlider.value + "";
+    }
     }
 
     //Chunk update function - Used when entering a 'chunk' area. This will override every aircraft in this list to adjust according to your offset
@@ -212,7 +216,8 @@ public class ZHK_UIScript : UdonSharpBehaviour
         
         Rigidbody xx = ((Rigidbody) SAVs[kIndex].GetProgramVariable("VehicleRigidbody"));
         
-        if (xx!=null &&  Vector3.Distance(localPlayer.GetPosition(), xx.position) > DistanceKinematicCheck)
+        if (xx!=null &&  Vector3.Distance(localPlayer.GetPosition(), xx.position) > DistanceKinematicCheck &&
+            !((SaccAirVehicle) SAVs[kIndex]).Piloting)
         {
             // Debug.Log("Is Kinematic set loop " + kIndex);
             SaccAirVehicle sav;
@@ -297,7 +302,7 @@ public class ZHK_UIScript : UdonSharpBehaviour
         // Useful for a moving skybox or if you need anything that needs to follow a player.
         if (PlayerFollowObject != null)
         {
-            PlayerFollowObject.position = localPlayer.GetPosition();
+            PlayerFollowObject.position = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position;
         }
         
         if(DoKinematicCheck) doKinematicChecks();
@@ -329,7 +334,7 @@ public class ZHK_UIScript : UdonSharpBehaviour
                 // }
             }
 
-            if (OWML == null)
+            if (OWML == null && doPlayerSkybox)
             {
                 Skybox.SetFloat("_AtmosphereThickness",  baseAtmos - (( offsetHeight - AtmosphereDarkStart) / AtmosphereDarkMax));
             }

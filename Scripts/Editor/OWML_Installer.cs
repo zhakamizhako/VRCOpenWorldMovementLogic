@@ -47,11 +47,14 @@ public class OWML_Installer : EditorWindow
         window.titleContent = new GUIContent("OWML Installer");
         window.minSize = new Vector2(520, 620);
         window.Show();
+        
     }
 
     private void OnEnable()
     {
         titleContent = new GUIContent("OWML Installer for SaccFlight");
+        
+        UpdateOWMLVariables(); // auto get
     }
     //checkList for OWML
     /*
@@ -387,13 +390,21 @@ public class OWML_Installer : EditorWindow
 
         //Configuring HUDController
         var HUDController = vehicleObject.GetComponentInChildren<SAV_HUDController>(true);
-        if (HUDController != null)
+        var HUDController_OWML = vehicleObject.GetComponentInChildren<SAV_HUDController_OWML>(true);
+        if (HUDController != null && HUDController_OWML==null)
         {
             var OWMLHudObject = new GameObject("HUDController_OWML");
             OWMLHudObject.transform.SetParent(HUDController.transform.parent, false);
             var OWMLHudController = OWMLHudObject.AddComponent<SAV_HUDController_OWML>();
             OWMLHudController.HBOld = HUDController;
-            OWMLHudController.OWML = OWMLComponent;    
+            OWMLHudController.OWML = OWMLComponent;
+            HUDController.gameObject.GetComponent<UdonSharpBehaviour>().enabled = false;
+        }
+        else if (HUDController != null && HUDController_OWML != null)
+        {
+            HUDController_OWML.HBOld = HUDController;
+            HUDController.gameObject.GetComponent<UdonSharpBehaviour>().enabled = false;
+            HUDController_OWML.OWML = OWMLComponent;
         }
 
         return;

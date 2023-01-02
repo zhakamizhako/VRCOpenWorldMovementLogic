@@ -6,6 +6,8 @@ Discord: ZhakamiZhako#2147
 
 VRC: Zhakami Zhako
 
+With collaboration of [YUXI](https://github.com/Heriyadi235)
+
 More extensions will come in the future! you may support me through and / or booth
 
 https://ko-fi.com/zhakamizhako

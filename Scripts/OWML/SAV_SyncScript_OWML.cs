@@ -28,21 +28,25 @@ public class SAV_SyncScript_OWML : UdonSharpBehaviour
     public float TeleportAngleDifference = 20;
 
 
+        [Tooltip("How much vehicle accelerates extra towards its 'raw' position when not owner in order to correct positional errors")]
+        public float CorrectionTime = 8f;
     [Tooltip("How quickly non-owned vehicle's velocity vector lerps towards its new value")]
     public float SpeedLerpTime = 4f;
-        [Tooltip("How fast the positional correction lerp happens")]
-        public float CorrectionTime_Position = 5f;
-        [Tooltip("How fast the rotational correction lerp happens")]
+        [Tooltip("Strength of force to stop correction overshooting target")]
+        public float CorrectionDStrength = 1.666666f;
+        [Tooltip("How much vehicle accelerates extra towards its 'raw' rotation when not owner in order to correct rotational errors")]
     public float CorrectionTime_Rotation = 1f;
 
     [Tooltip("How quickly non-owned vehicle's rotation slerps towards its new value")]
     public float RotationSpeedLerpTime = 10f;
         [Tooltip("Teleports owned vehicles forward by real time * velocity if frame takes too long to render and simulation slows down. Prevents other players from seeing you warp.")]
     public bool AntiWarp = true;
+        [Tooltip("Enable physics whilst not owner of the vehicle, can prevent some clipping through walls/ground, probably some performance hit. Not recommended for Quest")]
+        public bool NonOwnerEnablePhysics = false;
         [Header("DEBUG:")]
-        [Tooltip("LEAVE THIS EMPTY UNLESS YOU WANT TO TEST THE NETCODE OFFLINE IN TEST MODE")]
+        [Tooltip("LEAVE THIS EMPTY UNLESS YOU WANT TO TEST THE NETCODE OFFLINE WITH CLIENT SIM")]
     public Transform TestTransform;
-        [Tooltip("UNCOMMENT THE CODE TO USE THIS. LEAVE THIS EMPTY UNLESS YOU WANT TO TEST THE NETCODE OFFLINE IN TEST MODE, If TestTransform is empty and this is filled you can see the raw position in multiplayer")]
+        [Tooltip("LEAVE THIS EMPTY UNLESS YOU WANT TO TEST THE NETCODE OFFLINE WITH CLIENT SIM")]
     public Transform TestTransform_Raw;
 
     private Transform VehicleTransform;
@@ -183,7 +187,7 @@ public class SAV_SyncScript_OWML : UdonSharpBehaviour
         }
         else
         {
-            VehicleRigid.isKinematic = true;
+                if (!NonOwnerEnablePhysics) { VehicleRigid.isKinematic = true; }
                 VehicleRigid.collisionDetectionMode = CollisionDetectionMode.Discrete;
         }
 
@@ -212,7 +216,7 @@ public class SAV_SyncScript_OWML : UdonSharpBehaviour
         ExtrapDirection_Smooth = O_CurVel;
         RotExtrapolation_Raw = RotationLerper = /* O_LastRotation2 = */ O_LastRotation = O_Rotation_Q;
         LastCurAngMom = CurAngMom = Quaternion.identity;
-        VehicleRigid.isKinematic = true;
+            if (!NonOwnerEnablePhysics) { VehicleRigid.isKinematic = true; }
             VehicleRigid.collisionDetectionMode = CollisionDetectionMode.Discrete;
         VehicleRigid.drag = 9999;
         VehicleRigid.angularDrag = 9999;
@@ -355,6 +359,8 @@ public class SAV_SyncScript_OWML : UdonSharpBehaviour
         float deltatime = Time.deltaTime;
         double time;
 
+            Vector3 Deriv = Vector3.zero;
+            Vector3 Correction = (Extrapolation_Raw - TestTransform.position) * CorrectionTime;
         float Error = Vector3.Distance(TestTransform.position, Extrapolation_Raw);
         if (Time.deltaTime > .099f)
         {
@@ -362,18 +368,21 @@ public class SAV_SyncScript_OWML : UdonSharpBehaviour
             deltatime = (float) (time - lastframetime_extrap);
             ResetSyncTimes();
         }
-        else
+            else { time = StartupServerTime + (double)(Time.time - StartupLocalTime); }
+            //like a PID derivative. Makes movement a bit jerky because the 'raw' target is jerky.
+            if (Error < ErrorLastFrame)
         {
-            time = StartupServerTime + (double) (Time.time - StartupLocalTime);
+                Deriv = -Correction.normalized * (ErrorLastFrame - Error) * CorrectionDStrength / deltatime;
 
         }
 
         ErrorLastFrame = Error;
         lastframetime_extrap = Networking.GetServerTimeInSeconds();
-            float TimeSinceUpdate = (float)(time - L_UpdateTime) / updateInterval;
+            float TimeSinceUpdate = (float)(time - L_UpdateTime)
+                    / updateInterval;
         //extrapolated position based on time passed since update
         Vector3 VelEstimate = L_CurVel + (Acceleration * TimeSinceUpdate);
-            ExtrapDirection_Smooth = Vector3.Lerp(ExtrapDirection_Smooth, VelEstimate, SpeedLerpTime * deltatime);
+            ExtrapDirection_Smooth = Vector3.Lerp(ExtrapDirection_Smooth, VelEstimate + Correction + Deriv, SpeedLerpTime * deltatime);
 
         //rotate using similar method to movement (no deriv, correction is done with a simple slerp after)
         Quaternion FrameRotAccel = RealSlerp(Quaternion.identity, CurAngMomAcceleration, TimeSinceUpdate);
@@ -383,7 +392,7 @@ public class SAV_SyncScript_OWML : UdonSharpBehaviour
         //apply positional update
         Extrapolation_Raw += ExtrapolationDirection * deltatime;
         TestTransform.position += ExtrapDirection_Smooth * deltatime;
-            TestTransform.position = Vector3.Lerp(TestTransform.position, Extrapolation_Raw, CorrectionTime_Position * deltatime);
+         //TestTransform.position = Vector3.Lerp(TestTransform.position, Extrapolation_Raw, CorrectionTime_Position * deltatime);
         //apply rotational update
         Quaternion FrameRotExtrap = RealSlerp(Quaternion.identity, RotationExtrapolationDirection, deltatime);
         RotExtrapolation_Raw = FrameRotExtrap * RotExtrapolation_Raw;
