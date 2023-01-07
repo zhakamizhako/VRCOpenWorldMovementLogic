@@ -27,7 +27,6 @@ public class OWML_Installer : EditorWindow
             GUILayout.Width(200),
         };
 
-
     public GameObject OWMLPrefab;
 
     public ZHK_UIScript UIScript;
@@ -198,7 +197,7 @@ public class OWML_Installer : EditorWindow
                 }
             }
 
-
+        EditorGUILayout.LabelField("Note: Remove the gameobject \"Planes\" which is a child of \"MapObject\" before step 5.");
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("Step 5: \"update UIscript\", this will sync all OWMLSync in scene to UIScript.");
         if (GUILayout.Button(new GUIContent("update UIscript"), EditorStyles.miniButtonLeft, normalButtonLayout))
@@ -262,20 +261,7 @@ public class OWML_Installer : EditorWindow
         }
         using (new EditorGUILayout.HorizontalScope())
         {      
-            if (GUILayout.Button(new GUIContent("set respawn height"), EditorStyles.miniButtonLeft, normalButtonLayout))
-            {
-                VRCSceneDescriptor VRCWorld;
-                foreach (GameObject obj in GameObject.FindObjectsOfType(typeof(GameObject)))
-                {
-                    VRCWorld = obj.GetComponent<VRCSceneDescriptor>();
-                    if (VRCWorld != null)
-                    {
-                        VRCWorld.RespawnHeightY = -999999999f;
-                        Debug.Log("RespawnHeightY set");
-                        break;
-                    }
-                }
-            }
+
         }
             #endregion
             EditorGUILayout.LabelField("UI Installer by 西改改Yuxi TW: @YUXI917", EditorStyles.boldLabel);
