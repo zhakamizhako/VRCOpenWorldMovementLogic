@@ -82,7 +82,7 @@ public class OWML_Installer : EditorWindow
             "   ... \n" +
             "3.VRC Scence Discriptor and Reference Camera are at the root of the scence",MessageType.Info);
         */
-        EditorGUILayout.LabelField("Step 1: Place the OWMLPrefab here, the prefab is in Assets/FFR/OWML");
+        EditorGUILayout.LabelField("Step 1: Place the OWMLPrefab here, the prefab is in Assets/FFR/Prefabs");
         
 
         //you can modify it for your own porpose(like remove SaccFlightAccessories if there is already one in your scence)
@@ -227,51 +227,58 @@ public class OWML_Installer : EditorWindow
         EditorGUILayout.LabelField("Step 6: Other fuctions might be needed");
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("utilities");
-        /*No idea how to implent yet
-        if (GUILayout.Button(new GUIContent("disables all Static"), EditorStyles.miniButtonLeft, normalButtonLayout))
+        using (new EditorGUILayout.HorizontalScope())
         {
-            foreach (var obj in scene.GetRootGameObjects())
+            if (GUILayout.Button(new GUIContent("disables all Static"), EditorStyles.miniButtonLeft, normalButtonLayout))
             {
-                obj.isStatic = false;   
+                int x = 0;
+                foreach (GameObject obj in GameObject.FindObjectsOfType(typeof(GameObject)))
+                {
+                    obj.isStatic = false;
+                    x = x + 1;
+                }
+
+                Debug.Log("is Static false on " + x + " Objects");
+
             }
-            
-        }
-        */
-        if (GUILayout.Button(new GUIContent("disables all Static"), EditorStyles.miniButtonLeft, normalButtonLayout))
-        {
-            int x = 0;
-            foreach (GameObject obj in GameObject.FindObjectsOfType(typeof(GameObject)))
+
+            if (GUILayout.Button(new GUIContent("set respawn position"), EditorStyles.miniButtonLeft, normalButtonLayout))
             {
-                obj.isStatic = false;
-                x = x + 1;
-            }
-            
-            Debug.Log("is Static false on "+x+" Objects");
-            
-        }
-        
-        
-        
-        if (GUILayout.Button(new GUIContent("set respawn position"), EditorStyles.miniButtonLeft, normalButtonLayout))
-        {
-            var sceneDescriptor = scene.GetRootGameObjects().Select(o => o.GetComponent<VRCSceneDescriptor>()).FirstOrDefault(a => a != null);
-            if (sceneDescriptor != null)
-            {
-                sceneDescriptor.RespawnHeightY = -9999999f;
-                //if (sceneDescriptor.spawns[1] != null)
+                var sceneDescriptor = scene.GetRootGameObjects().Select(o => o.GetComponent<VRCSceneDescriptor>()).FirstOrDefault(a => a != null);
+                if (sceneDescriptor != null)
+                {
+                    sceneDescriptor.RespawnHeightY = -9999999f;
+                    //if (sceneDescriptor.spawns[1] != null)
                     //playerRespawnHandler.parent = sceneDescriptor.spawns[1];
-                sceneDescriptor.spawns = new Transform[] { playerRespawnHandler };
+                    sceneDescriptor.spawns = new Transform[] { playerRespawnHandler };
+                }
+            }
+            if (GUILayout.Button(new GUIContent("set cam render distance"), EditorStyles.miniButtonLeft, normalButtonLayout))
+            {
+                var cameras = GameObject.FindObjectOfType<Camera>();
+                cameras.farClipPlane = 900000;
+                cameras.nearClipPlane = 0.1f;
             }
         }
-        if (GUILayout.Button(new GUIContent("set cam render distance"), EditorStyles.miniButtonLeft, normalButtonLayout))
-        {
-            var cameras = GameObject.FindObjectOfType<Camera>();
-            cameras.farClipPlane = 900000;
-            cameras.nearClipPlane = 0.1f;
+        using (new EditorGUILayout.HorizontalScope())
+        {      
+            if (GUILayout.Button(new GUIContent("set respawn height"), EditorStyles.miniButtonLeft, normalButtonLayout))
+            {
+                VRCSceneDescriptor VRCWorld;
+                foreach (GameObject obj in GameObject.FindObjectsOfType(typeof(GameObject)))
+                {
+                    VRCWorld = obj.GetComponent<VRCSceneDescriptor>();
+                    if (VRCWorld != null)
+                    {
+                        VRCWorld.RespawnHeightY = -999999999f;
+                        Debug.Log("RespawnHeightY set");
+                        break;
+                    }
+                }
+            }
         }
-        #endregion
-        
-        EditorGUILayout.LabelField("UI Installer by 西改改Yuxi TW: @YUXI917", EditorStyles.boldLabel);
+            #endregion
+            EditorGUILayout.LabelField("UI Installer by 西改改Yuxi TW: @YUXI917", EditorStyles.boldLabel);
 
     }
 
@@ -293,7 +300,8 @@ public class OWML_Installer : EditorWindow
         if (vehicleObject.GetComponentInChildren<ZHK_OpenWorldMovementLogic>() != null)
         {
             OWMLScriptObject = OWMLComponent.gameObject; //Can be commented; or used as a reference later.
-        }else
+        }
+        else
         {
             OWMLScriptObject = new GameObject("OWMLScript");
             OWMLScriptObject.transform.SetParent(vehicleObject.transform, false);
