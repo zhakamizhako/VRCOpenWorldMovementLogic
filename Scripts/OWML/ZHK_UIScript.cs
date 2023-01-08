@@ -65,7 +65,7 @@ public class ZHK_UIScript : UdonSharpBehaviour
     
     [Tooltip("Enable this to allow player and map offset according to the distance threshold. Note that this will be disabled in editor mode due to a bug in CyanEmu. " +
              "\n \n これを有効にすると、距離の閾値に応じてプレイヤーとマップのオフセットが可能になります。なお、エディタモードではCyanEmuのバグにより無効化されます。")]
-    [InspectorName("Enable Player OWML")]public bool allowPlayerOWML;
+    [InspectorName("Enable Player OWML")]public bool allowPlayerOWML = true;
 
     [Header("!!! WHEN CHANGING THE AMOUNT OF VEHICLES PRESENT IN THE SCENE, PLEASE ADD EVERY SYNC SCRIPT INTO THIS VARIABLE. !!!")]
     [Header("!!! シーンに存在する車両の量を変更する場合、この変数にすべての同期スクリプトを追加してください。 !!!")]
@@ -120,6 +120,10 @@ public class ZHK_UIScript : UdonSharpBehaviour
     public float initTimer = 0f;
     
     public bool doPlayerSkybox = false;
+    public GameObject Debugger;
+
+    private bool holdCTRL;
+    private bool holdAlt;
 
     // public UdonBehaviour TriggerScriptPlugin; // For future plugin
 
@@ -202,7 +206,7 @@ public class ZHK_UIScript : UdonSharpBehaviour
             {
                 xstation.oldPos = xstation.CurrentPlayerPosition + Map.position;
                 xstation.stationObject.transform.position = xstation.CurrentPlayerPosition + Map.position;
-                Debug.Log("Updated Thingy: "+ xstation.PlayerID);
+                Debug.Log("Updated Station: "+ xstation.PlayerID);
             }
         }
     }
@@ -262,6 +266,13 @@ public class ZHK_UIScript : UdonSharpBehaviour
 
     void Update()
     {
+        holdCTRL = Input.GetKey(KeyCode.LeftControl);
+        holdAlt = Input.GetKey(KeyCode.LeftAlt);
+        if (holdAlt && holdCTRL && Input.GetKeyDown(KeyCode.O))
+        {
+            if(Debugger!=null) Debugger.SetActive(!Debugger.activeSelf);
+        }
+        
         offsetHeight = OWML!=null ? (-Map.position.y +  OWML.VehicleRigidBody.transform.position.y) * 3.28084f : (-Map.position.y + localPlayer.GetPosition().y) * 3.28084f ;
 
         if (initTimer > initializedTimer && !initialized)
