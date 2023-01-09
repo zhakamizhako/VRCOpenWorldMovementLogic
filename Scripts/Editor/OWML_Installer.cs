@@ -27,12 +27,15 @@ public class OWML_Installer : EditorWindow
             GUILayout.Width(200),
         };
 
+
+
     public GameObject OWMLPrefab;
 
     public ZHK_UIScript UIScript;
     public Transform targetParents;
     public Transform mapObject;
     public Transform playerRespawnHandler;
+    public FFRDEBUGSCRIPT Debugger;
 
     private Vector2 vehicleScrollPosition;
 
@@ -263,8 +266,9 @@ public class OWML_Installer : EditorWindow
         {      
 
         }
-            #endregion
-            EditorGUILayout.LabelField("UI Installer by 西改改Yuxi TW: @YUXI917", EditorStyles.boldLabel);
+        #endregion
+        
+        EditorGUILayout.LabelField("UI Installer by 西改改Yuxi TW: @YUXI917", EditorStyles.boldLabel);
 
     }
 
@@ -572,7 +576,12 @@ public class OWML_Installer : EditorWindow
         UIScript = GameObject.Find("/UIObject").GetComponent<ZHK_UIScript>();
         targetParents = GameObject.Find("/PlayerParent").transform;
         mapObject = GameObject.Find("/MapObject").transform;
-        playerRespawnHandler = GameObject.FindObjectOfType<ZHK_PlayerRespawnHandler>().transform;
+        playerRespawnHandler = FindObjectOfType<ZHK_PlayerRespawnHandler>().transform;
+        Debugger = (Resources.FindObjectsOfTypeAll<FFRDEBUGSCRIPT>())[0];
+        UIScript.Debugger = Debugger.gameObject;
+        ZHK_OWML_Player StationController = (Resources.FindObjectsOfTypeAll<ZHK_OWML_Player>())[0];
+        Debugger.Stations = StationController.Stations;
+        Debugger.UIScript = UIScript;
     }
 }
 

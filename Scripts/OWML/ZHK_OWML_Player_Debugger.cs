@@ -23,6 +23,10 @@ public class ZHK_OWML_Player_Debugger : UdonSharpBehaviour
     }
     void Update()
     {
+        if (StationBase.PlayerID == localPlayer.playerId)
+        {
+            gameObject.SetActive(false);
+        }
         if (LookAtBase != null)
         {
             LookAtBase.LookAt(localPlayer.GetPosition());
@@ -30,12 +34,14 @@ public class ZHK_OWML_Player_Debugger : UdonSharpBehaviour
         if (DebugText != null)
         {
             string output = "";
-            output += StationBase.Player.displayName;
+            output += StationBase.name;
+            output += StationBase.Player!=null ? StationBase.Player.displayName : "NULL";
             output += "\n x:" + StationBase.CurrentPlayerPosition.x;
             output += "\n y:" + StationBase.CurrentPlayerPosition.y;
             output += "\n z:" + StationBase.CurrentPlayerPosition.z;
             output += "\n inVehicle:" + StationBase.inVehicle;
             output += "\n PlayerID:" + StationBase.PlayerID;
+            output += "\n DoIOwn?: " + Networking.IsOwner(Networking.LocalPlayer, StationBase.gameObject);
 
             DebugText.text = output;
         }

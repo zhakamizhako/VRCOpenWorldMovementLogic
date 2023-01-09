@@ -41,6 +41,7 @@ public class ZHK_OWML_Station : UdonSharpBehaviour
     private bool nextFrame = false;
 
     private float timeoutTimer = 0f;
+    private bool force = false;
     public int PlayerID
     {
         set
@@ -73,30 +74,6 @@ public class ZHK_OWML_Station : UdonSharpBehaviour
                     stationObject.UseStation(Networking.LocalPlayer);
                 }
             }
-            // Debug.Log("In vehicle Called "+ value, this);
-            // if (Player == null)
-            // {
-            //     Debug.Log("Player null?");
-            //     return;
-            // }
-            //
-            // if (Networking.LocalPlayer == null)
-            // {
-            //     _inVehicle = value;}
-            //
-            // if(Networking.IsOwner(gameObject)){ _inVehicle = value; }
-            //
-            // if (Networking.LocalPlayer!=null &&  Networking.IsOwner(gameObject) && UIScript.stationObject==this)
-            // {
-            //     _inVehicle = value;
-            //     if (!value)
-            //     {
-            //         stationObject.transform.position = Networking.LocalPlayer.GetPosition();
-            //         stationObject.PlayerMobility = VRCStation.Mobility.Mobile;
-            //         stationObject.UseStation(Networking.LocalPlayer);
-            //     }
-            //     RequestSerialization();
-            // }
         }
         get => _inVehicle;
     }
@@ -113,11 +90,14 @@ public class ZHK_OWML_Station : UdonSharpBehaviour
 
     public void register(VRCPlayerApi z)
     {
-        if (z.playerId == Networking.LocalPlayer.playerId && UIScript.stationObject != null && UIScript.stationObject != this)
+        if (!force && z.playerId == Networking.LocalPlayer.playerId && UIScript.stationObject != null && UIScript.stationObject != this)
         {
-            Debug.Log("Aborting Assignment on station due to a duplicate risk");
+            Debug.Log("Person has Station Object in UIScript "+gameObject.name);
+            Debug.Log("Aborting Assignment on station " +gameObject.name+" due to a duplicate risk");
             return;
         }
+
+        force = false;
         // Start stuff
         // UIScript = OWML_Player.UIScript;
         // transform.position = Vector3.zero;
@@ -154,7 +134,7 @@ public class ZHK_OWML_Station : UdonSharpBehaviour
             gameObject.SetActive(true);
             UIScript.stationObject = this;
             isMe = true;
-            PlayerID = LocalPlayer.playerId;
+            PlayerID = Networking.LocalPlayer.playerId;
             RequestSerialization();
             SendCustomEventDelayedSeconds(nameof(useSeat),2);
             SendCustomNetworkEvent(NetworkEventTarget.All, nameof(broadcastRegistered));
@@ -163,6 +143,8 @@ public class ZHK_OWML_Station : UdonSharpBehaviour
 
     public void forceRegister()
     {
+        Debug.Log("Force Register Received -"+Networking.LocalPlayer.playerId);
+        force = true;
         register(Networking.LocalPlayer);
     }
 
@@ -186,7 +168,7 @@ public class ZHK_OWML_Station : UdonSharpBehaviour
             RequestSerialization(); 
             SendCustomNetworkEvent(NetworkEventTarget.All, nameof(publicUnregister));
         }
-        gameObject.SetActive(false);
+        // gameObject.SetActive(false);
     }
 
     public void publicUnregister()
@@ -204,6 +186,7 @@ public class ZHK_OWML_Station : UdonSharpBehaviour
         if (Networking.IsOwner(gameObject))
         {
             inVehicle = false;
+            PlayerID = Networking.LocalPlayer.playerId; // force replacing it.
             RequestSerialization();   
             useSeat(); // Ey, quick fix
         }
@@ -305,6 +288,7 @@ public class ZHK_OWML_Station : UdonSharpBehaviour
             Debug.Log("Resynchronize Call received for station "+gameObject.name +" of player:"+ Player.playerId + " for station player id:"+ PlayerID);
             TemporaryVelocity = Networking.LocalPlayer.GetVelocity();
             nextFrame = false;
+            IndicatorDebug.SetActive(false); // A just in case wtf shit of the hell 
             if(!inVehicle) SendCustomNetworkEvent(NetworkEventTarget.All, nameof(useSeat));   
         }
     }
@@ -331,13 +315,23 @@ public class ZHK_OWML_Station : UdonSharpBehaviour
         {
             if (UIScript.stationObject == this && PlayerID==-1)
             {
+                Debug.Log("Attempting to update PlayerID...");
                 PlayerID = Networking.LocalPlayer.playerId;
                 RequestSerialization();
                 SendCustomEventDelayedSeconds(nameof(useSeat),1);
                 playerSet = true;
+                IndicatorDebug.SetActive(false);
             }
             if (isMe)
             {
+                if (Player != Networking.LocalPlayer)
+                {
+                    Debug.Log("Replacing PlayerID");
+                    Player = Networking.LocalPlayer;
+                    PlayerID = Networking.LocalPlayer.playerId;
+                    IndicatorDebug.SetActive(false);
+                    RequestSerialization();
+                }
                 if (!nextFrame && !inVehicle)
                 {
                     nextFrame = true;

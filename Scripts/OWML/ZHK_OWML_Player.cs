@@ -111,11 +111,11 @@ public class ZHK_OWML_Player : UdonSharpBehaviour
             }
         }
 
-        if (noMiss)
-        {
-            Debug.Log("Nothing found? Ownership recheck...");
+        // if (noMiss)
+        // {
+        Debug.Log("Ownership recheck...");
             ownershipRechecks();
-        }
+        // }
     }
 
     public void resyncCall()
