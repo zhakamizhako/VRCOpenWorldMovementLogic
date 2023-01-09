@@ -229,6 +229,7 @@ public class OWML_Installer : EditorWindow
         EditorGUILayout.LabelField("Step 6: Other fuctions might be needed");
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("utilities");
+
         using (new EditorGUILayout.HorizontalScope())
         {
             if (GUILayout.Button(new GUIContent("disables all Static"), EditorStyles.miniButtonLeft, normalButtonLayout))
@@ -255,6 +256,7 @@ public class OWML_Installer : EditorWindow
                     sceneDescriptor.spawns = new Transform[] { playerRespawnHandler };
                 }
             }
+
             if (GUILayout.Button(new GUIContent("set cam render distance"), EditorStyles.miniButtonLeft, normalButtonLayout))
             {
                 var cameras = GameObject.FindObjectOfType<Camera>();
@@ -262,14 +264,8 @@ public class OWML_Installer : EditorWindow
                 cameras.nearClipPlane = 0.1f;
             }
         }
-        using (new EditorGUILayout.HorizontalScope())
-        {      
-
-        }
         #endregion
-        
         EditorGUILayout.LabelField("UI Installer by 西改改Yuxi TW: @YUXI917", EditorStyles.boldLabel);
-
     }
 
     private void ModifyPlane(GameObject vehicleObject)
@@ -290,8 +286,7 @@ public class OWML_Installer : EditorWindow
         if (vehicleObject.GetComponentInChildren<ZHK_OpenWorldMovementLogic>() != null)
         {
             OWMLScriptObject = OWMLComponent.gameObject; //Can be commented; or used as a reference later.
-        }
-        else
+        }else
         {
             OWMLScriptObject = new GameObject("OWMLScript");
             OWMLScriptObject.transform.SetParent(vehicleObject.transform, false);
