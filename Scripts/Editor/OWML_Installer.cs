@@ -247,18 +247,30 @@ public class OWML_Installer : EditorWindow
                 var sceneDescriptor = scene.GetRootGameObjects().Select(o => o.GetComponent<VRCSceneDescriptor>()).FirstOrDefault(a => a != null);
                 if (sceneDescriptor != null)
                 {
+                    Undo.RecordObject(sceneDescriptor, "set respawn position");
                     sceneDescriptor.RespawnHeightY = -9999999f;
                     //if (sceneDescriptor.spawns[1] != null)
                     //playerRespawnHandler.parent = sceneDescriptor.spawns[1];
                     sceneDescriptor.spawns = new Transform[] { playerRespawnHandler };
+                    EditorUtility.SetDirty(sceneDescriptor);
                 }
             }
 
             if (GUILayout.Button(new GUIContent("set cam render distance"), EditorStyles.miniButtonLeft, normalButtonLayout))
             {
-                var cameras = GameObject.FindObjectOfType<Camera>();
-                cameras.farClipPlane = 900000;
-                cameras.nearClipPlane = 0.1f;
+                var sceneDescriptor = scene.GetRootGameObjects().Select(o => o.GetComponent<VRCSceneDescriptor>()).FirstOrDefault(a => a != null);
+                if (sceneDescriptor != null)
+                {
+                    var refcamera = sceneDescriptor.ReferenceCamera;
+                    if (refcamera)
+                    {
+                        var cameras = refcamera.GetComponent<Camera>();
+                        Undo.RecordObject(cameras, "set cam render distance");
+                        cameras.farClipPlane = 900000;
+                        cameras.nearClipPlane = 0.1f;
+                        EditorUtility.SetDirty(cameras);
+                    }
+                }
             }
         }
         #endregion
