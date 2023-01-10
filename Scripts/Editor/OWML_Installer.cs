@@ -27,8 +27,6 @@ public class OWML_Installer : EditorWindow
             GUILayout.Width(200),
         };
 
-
-
     public GameObject OWMLPrefab;
 
     public ZHK_UIScript UIScript;
@@ -51,7 +49,6 @@ public class OWML_Installer : EditorWindow
         window.Show();
         
     }
-
     private void OnEnable()
     {
         titleContent = new GUIContent("OWML Installer for SaccFlight");
@@ -64,14 +61,14 @@ public class OWML_Installer : EditorWindow
     dont bring qvpen cross a chunk
     uncheck repeating world
     */
-    //OWML setupp
+    //OWML setup
     /*
      add prefab
     move all map object
     for each plane
     move & config all plane
-
      */
+
     private void OnGUI()
     {
         var scene = SceneManager.GetActiveScene();
@@ -443,7 +440,7 @@ public class OWML_Installer : EditorWindow
         }
         return;
     }
-
+    
     private void ModifyWeapon(GameObject vehicleObject)
     {
         //TODO:无法定位非原生的武器
@@ -579,5 +576,4 @@ public class OWML_Installer : EditorWindow
         Debugger.UIScript = UIScript;
     }
 }
-
 #endif
