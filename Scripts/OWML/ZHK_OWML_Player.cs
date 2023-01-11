@@ -96,7 +96,7 @@ public class ZHK_OWML_Player : UdonSharpBehaviour
                 {
                     if (Stations[y].PlayerID == players[x].playerId)
                     {
-                        Debug.Log("Found PlayerID "+ players[x].playerId + " on stationid" + Stations[y]);
+                        Debug.Log("Found PlayerID "+ players[x].playerId + " on stationid" + Stations[y].gameObject.name);
                         found = true;
                         break;
                     }
