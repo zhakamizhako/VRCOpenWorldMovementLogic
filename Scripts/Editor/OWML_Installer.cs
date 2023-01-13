@@ -236,6 +236,7 @@ public class OWML_Installer : EditorWindow
                 {
                     obj.isStatic = false;
                     x = x + 1;
+                    EditorUtility.SetDirty(obj);
                 }
 
                 Debug.Log("is Static false on " + x + " Objects");
@@ -421,6 +422,7 @@ public class OWML_Installer : EditorWindow
         foreach (var each in particles)
         {
             ModifyParticle(each);
+            EditorUtility.SetDirty(each);
         }
         Debug.Log(string.Format("{0} particle systems modified for {1}", particles.ToArray().Length, vehicleObject.name));
     }
@@ -463,18 +465,22 @@ public class OWML_Installer : EditorWindow
         foreach (var i in AAMs)
         {
             i.WorldParent = mapObject.transform;
+            EditorUtility.SetDirty(i);
         }
         foreach (var i in AGMs)
         {
             i.WorldParent = mapObject.transform;
+            EditorUtility.SetDirty(i);
         }
         foreach (var i in bombs)
         {
             i.WorldParent = mapObject.transform;
+            EditorUtility.SetDirty(i);
         }
         foreach (var i in rockets)
         {
             i.WorldParent = mapObject.transform;
+            EditorUtility.SetDirty(i);
         }
         //Added debugger
         Debug.Log(string.Format("{0} AAM, {1} AGM, {2} Bomb, {3} rocket modified", AAMs.Length, AGMs.Length, bombs.Length, rockets.Length));
