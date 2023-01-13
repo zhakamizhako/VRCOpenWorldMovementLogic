@@ -90,7 +90,7 @@ public class ZHK_OWML_Station : UdonSharpBehaviour
 
     public void register(VRCPlayerApi z)
     {
-        if (z.playerId == Networking.LocalPlayer.playerId && UIScript.stationObject != null && UIScript.stationObject != this)
+        if (!force && z.playerId == Networking.LocalPlayer.playerId && UIScript.stationObject != null && UIScript.stationObject != this)
         {
             Debug.Log("Person has Station Object in UIScript "+gameObject.name);
             Debug.Log("Aborting Assignment on station " +gameObject.name+" due to a duplicate risk");
@@ -164,8 +164,7 @@ public class ZHK_OWML_Station : UdonSharpBehaviour
         PlayerID = -1;
         playerSet = false;
 
-        Networking.SetOwner(Networking.GetOwner(OWML_Player.gameObject), gameObject); //make sure the owner is set to player controller
-        if (Networking.IsOwner(gameObject))
+        if(Networking.IsOwner(gameObject))
         {
             RequestSerialization(); 
             SendCustomNetworkEvent(NetworkEventTarget.All, nameof(publicUnregister));
@@ -220,13 +219,12 @@ public class ZHK_OWML_Station : UdonSharpBehaviour
             }
             else
             {
-                //unregister();
+                unregister();
                 // OWML_Player.sort(PlayerID);
             }
         }
         //Rule: UIScript.stationObject is YOUR station. If there's an ownership transfer, probably means that someone got disconnected.
-        if(player.isLocal && UIScript.stationObject!=null && UIScript.stationObject != this)
-        { // Probably what happened is someone disconnected and the player stuff wasn't even unregistered
+        if(player.isLocal && UIScript.stationObject!=null){ // Probably what happened is someone disconnected and the player stuff wasn't even unregistered
             unregister();
             // OWML_Player.sort(PlayerID);
         }
