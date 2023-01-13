@@ -90,14 +90,14 @@ public class ZHK_OWML_Station : UdonSharpBehaviour
 
     public void register(VRCPlayerApi z)
     {
-        if (!force && z.playerId == Networking.LocalPlayer.playerId && UIScript.stationObject != null && z.IsValid()/*&& UIScript.stationObject != this*/)
+        if (z.playerId == Networking.LocalPlayer.playerId && UIScript.stationObject != null && UIScript.stationObject != this)
         {
             Debug.Log("Person has Station Object in UIScript "+gameObject.name);
             Debug.Log("Aborting Assignment on station " +gameObject.name+" due to a duplicate risk");
             return;
         }
 
-        force = false;
+        // force = false;
         // Start stuff
         // UIScript = OWML_Player.UIScript;
         // transform.position = Vector3.zero;
@@ -126,8 +126,8 @@ public class ZHK_OWML_Station : UdonSharpBehaviour
         {
             gameObject.SetActive(true);
             Networking.SetOwner(z, gameObject);//transfer this chair to the other player.
-            //SendCustomNetworkEvent(NetworkEventTarget.Owner, nameof(forceRegister));    
-            SendCustomNetworkEvent(NetworkEventTarget.Owner, nameof(register));
+            // SendCustomNetworkEvent(NetworkEventTarget.Owner, nameof(forceRegister));
+            // SendCustomNetworkEvent(NetworkEventTarget.All, nameof(broadcastRefreshSeat));
         }
         
         if (isMe) // same as onOwnership transferred but locally. 
@@ -145,13 +145,13 @@ public class ZHK_OWML_Station : UdonSharpBehaviour
     public void forceRegister()
     {
         Debug.Log("Force Register Received -"+Networking.LocalPlayer.playerId);
-        force = true;
+        // force = true;
         register(Networking.LocalPlayer);
     }
 
     public void broadcastRegistered()
     {
-        Debug.Log("registered for "+ PlayerID);
+        Debug.Log(gameObject.name +" registered for "+ PlayerID);
         gameObject.SetActive(true);
         
     }
@@ -168,9 +168,15 @@ public class ZHK_OWML_Station : UdonSharpBehaviour
         if (Networking.IsOwner(gameObject))
         {
             RequestSerialization(); 
-            SendCustomNetworkEvent(NetworkEventTarget.All, nameof(publicUnregister)); 
+            SendCustomNetworkEvent(NetworkEventTarget.All, nameof(publicUnregister));
+            SendCustomEventDelayedSeconds(nameof(delaySetOwner), 1);
         }
-        // gameObject.SetActive(false);
+        gameObject.SetActive(false);
+    }
+
+    public void delaySetOwner()
+    {
+        Networking.SetOwner(Networking.GetOwner(OWML_Player.gameObject), gameObject);
     }
 
     public void publicUnregister()
@@ -196,7 +202,7 @@ public class ZHK_OWML_Station : UdonSharpBehaviour
 
     public override void OnOwnershipTransferred(VRCPlayerApi player)
     {
-        Debug.Log("OnOwnershipcall ASD");
+        Debug.Log("!!!!!!!! ON OWNERSHIP TRANSFERRED CALL");
         Player = Networking.GetOwner(gameObject);
         if (player.isLocal)
         {
@@ -208,6 +214,7 @@ public class ZHK_OWML_Station : UdonSharpBehaviour
                 isMe = true;
                 Player = Networking.LocalPlayer;
                 PlayerID = Networking.LocalPlayer.playerId;
+                register(player);
                 RequestSerialization();
                 SendCustomEventDelayedSeconds(nameof(useSeat),2);   
             }
@@ -240,10 +247,21 @@ public class ZHK_OWML_Station : UdonSharpBehaviour
         }
     }
 
+    public void broadcastRefreshSeat()
+    {
+        SendCustomEventDelayedSeconds(nameof(refreshSeat),4);
+    }
+    public void refreshSeat()
+    {
+        gameObject.SetActive(true);
+        timeoutTimer = 0;
+    }
+
     public void useSeat()
     {
         if(Player == Networking.LocalPlayer)
         {
+            TemporaryVelocity = Networking.LocalPlayer.GetVelocity();
             stationObject.PlayerMobility = VRCStation.Mobility.Mobile;
             stationObject.UseStation(Networking.LocalPlayer);
         }

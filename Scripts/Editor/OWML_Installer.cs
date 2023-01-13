@@ -468,7 +468,7 @@ public class OWML_Installer : EditorWindow
         {
             i.WorldParent = mapObject.transform;
         }
-        foreach (var i in AGMs)
+        foreach (var i in bombs)
         {
             i.WorldParent = mapObject.transform;
         }

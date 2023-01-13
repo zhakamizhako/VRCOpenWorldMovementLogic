@@ -270,7 +270,11 @@ public class ZHK_UIScript : UdonSharpBehaviour
         holdAlt = Input.GetKey(KeyCode.LeftAlt);
         if (holdAlt && holdCTRL && Input.GetKeyDown(KeyCode.O))
         {
-            if(Debugger!=null) Debugger.SetActive(!Debugger.activeSelf);
+            if (Debugger != null)
+            {
+                Debugger.SetActive(!Debugger.activeSelf);
+                showDebugPlayerPos = Debugger.activeSelf;
+            }
         }
         
         offsetHeight = OWML!=null ? (-Map.position.y +  OWML.VehicleRigidBody.transform.position.y) * 3.28084f : (-Map.position.y + localPlayer.GetPosition().y) * 3.28084f ;
