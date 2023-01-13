@@ -202,7 +202,9 @@ public class ZHK_OWML_Station : UdonSharpBehaviour
     public override void OnOwnershipTransferred(VRCPlayerApi player)
     {
         Debug.Log("!!!!!!!! ON OWNERSHIP TRANSFERRED CALL");
-        Player = Networking.GetOwner(gameObject);
+        if (PlayerID != -1)//after assigned the playerid has been synced to every player
+            Player = VRCPlayerApi.GetPlayerById(PlayerID);
+        //Player = Networking.GetOwner(gameObject);
         if (player.isLocal)
         {
             if (UIScript.stationObject == null)

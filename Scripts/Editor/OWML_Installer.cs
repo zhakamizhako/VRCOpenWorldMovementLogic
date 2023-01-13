@@ -27,8 +27,6 @@ public class OWML_Installer : EditorWindow
             GUILayout.Width(200),
         };
 
-
-
     public GameObject OWMLPrefab;
 
     public ZHK_UIScript UIScript;
@@ -51,7 +49,6 @@ public class OWML_Installer : EditorWindow
         window.Show();
         
     }
-
     private void OnEnable()
     {
         titleContent = new GUIContent("OWML Installer for SaccFlight");
@@ -64,14 +61,14 @@ public class OWML_Installer : EditorWindow
     dont bring qvpen cross a chunk
     uncheck repeating world
     */
-    //OWML setupp
+    //OWML setup
     /*
      add prefab
     move all map object
     for each plane
     move & config all plane
-
      */
+
     private void OnGUI()
     {
         var scene = SceneManager.GetActiveScene();
@@ -239,6 +236,7 @@ public class OWML_Installer : EditorWindow
                 {
                     obj.isStatic = false;
                     x = x + 1;
+                    EditorUtility.SetDirty(obj);
                 }
 
                 Debug.Log("is Static false on " + x + " Objects");
@@ -250,18 +248,30 @@ public class OWML_Installer : EditorWindow
                 var sceneDescriptor = scene.GetRootGameObjects().Select(o => o.GetComponent<VRCSceneDescriptor>()).FirstOrDefault(a => a != null);
                 if (sceneDescriptor != null)
                 {
+                    Undo.RecordObject(sceneDescriptor, "set respawn position");
                     sceneDescriptor.RespawnHeightY = -9999999f;
                     //if (sceneDescriptor.spawns[1] != null)
                     //playerRespawnHandler.parent = sceneDescriptor.spawns[1];
                     sceneDescriptor.spawns = new Transform[] { playerRespawnHandler };
+                    EditorUtility.SetDirty(sceneDescriptor);
                 }
             }
 
             if (GUILayout.Button(new GUIContent("set cam render distance"), EditorStyles.miniButtonLeft, normalButtonLayout))
             {
-                var cameras = GameObject.FindObjectOfType<Camera>();
-                cameras.farClipPlane = 900000;
-                cameras.nearClipPlane = 0.1f;
+                var sceneDescriptor = scene.GetRootGameObjects().Select(o => o.GetComponent<VRCSceneDescriptor>()).FirstOrDefault(a => a != null);
+                if (sceneDescriptor != null)
+                {
+                    var refcamera = sceneDescriptor.ReferenceCamera;
+                    if (refcamera)
+                    {
+                        var cameras = refcamera.GetComponent<Camera>();
+                        Undo.RecordObject(cameras, "set cam render distance");
+                        cameras.farClipPlane = 900000;
+                        cameras.nearClipPlane = 0.1f;
+                        EditorUtility.SetDirty(cameras);
+                    }
+                }
             }
         }
         #endregion
@@ -412,6 +422,7 @@ public class OWML_Installer : EditorWindow
         foreach (var each in particles)
         {
             ModifyParticle(each);
+            EditorUtility.SetDirty(each);
         }
         Debug.Log(string.Format("{0} particle systems modified for {1}", particles.ToArray().Length, vehicleObject.name));
     }
@@ -443,7 +454,7 @@ public class OWML_Installer : EditorWindow
         }
         return;
     }
-
+    
     private void ModifyWeapon(GameObject vehicleObject)
     {
         //TODO:无法定位非原生的武器
@@ -454,18 +465,22 @@ public class OWML_Installer : EditorWindow
         foreach (var i in AAMs)
         {
             i.WorldParent = mapObject.transform;
+            EditorUtility.SetDirty(i);
         }
         foreach (var i in AGMs)
         {
             i.WorldParent = mapObject.transform;
+            EditorUtility.SetDirty(i);
         }
         foreach (var i in bombs)
         {
             i.WorldParent = mapObject.transform;
+            EditorUtility.SetDirty(i);
         }
         foreach (var i in rockets)
         {
             i.WorldParent = mapObject.transform;
+            EditorUtility.SetDirty(i);
         }
         //Added debugger
         Debug.Log(string.Format("{0} AAM, {1} AGM, {2} Bomb, {3} rocket modified", AAMs.Length, AGMs.Length, bombs.Length, rockets.Length));
@@ -579,5 +594,4 @@ public class OWML_Installer : EditorWindow
         Debugger.UIScript = UIScript;
     }
 }
-
 #endif
