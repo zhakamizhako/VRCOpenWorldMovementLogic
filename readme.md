@@ -36,14 +36,26 @@ You will probably need to:
 >	- Use the included modified Object Sync
 >	- QVPen usage may only work best near the spawn for now. Try not to cross the first chunk.
 
-Todo
->	- QVpen compatibility.
-
 Notes
 >	- When creating an aircraft, uncheck repeating world in the SaccAirVehicle.
 
 # Changelog 
 ```
+(v1.3)
+- Adaptation for SaccFlight 1.61, updated Sync Script for 1.61
+- Added Debugger - Press CTRL + ALT + O to toggle the debugger, pageup/pagedown to scroll through
+- Improved Ground player OWML, Player Station Assignment
+- Optimization on Player Stations
+- Added Station Timeout to auto-disable ZHK_Stations that aren't being used.
+- Added Recheck Interval to resynchronize players that are not in their 'proper' stations
+- Added OWML distance Slider
+- Added automatic Kinematic Checker in UIScript
+- Added Altitude Animator for Atmosphere detection
+- Added YUXI's Easy UI Installer for OWML
+- Planes will be automatically disabled during upload mode (Will not affect actual world; This is for performance optimization during upload time since all vehicles will be active)
+- Changed the "ZHK_ModifiedObjectSync" to use 'Continuous' instead of manual sync
+- 
+
 (v1.2)
 - Adaption for SaccFlight 1.6, added namespace changes
 - Added support for SaccGroundVehicles
@@ -101,6 +113,87 @@ You can integrate the system in a few ways
 - Use the prefab in Assets/FFR/OWML; 
 - Load OWML_Sample Scene file
 - Make from scratch. (If you want to, but i highly suggest not to.)
+
+### USING THE INSTALLER
+
+The new UI Installer (thanks YUXI!) is the most preferrable way in order to setup your scene with existing and new aircrafts; as well as an existing and new scenes; Since this will save you the hassle of setting up each and every single aircraft and scene(s). As you use it, you may still refer to the guides below when troubleshooting.
+
+If you are setting up for a new aircraft, it is highly recommended that you setup this aircraft in flying order first before implementing OWML into it.
+
+1. Make sure that the scene is in flying order.
+
+2. Access the Open World Movement Logic UI Menu through the Menu Bar -> SaccFlight -> Open World Movement Logic
+
+#### Existing Scenes without OWML
+
+1. Import OWMLPrefab from Assets/FFR/OWML into the UI Installer
+2. Click 'Place Prefab' to automatically place the prefab in the correct hierarchy
+3. Click 'Place Objects' to automatically setup the hierarchy order/objects. 
+	- This will move any 'map' related objects inside MapObject. Planes, Terrains, etc.
+	- This is not supposed to break your hierarchy order. If it does, please contact me.
+4. The 'Step 3' in the UI Installer should be automatically be filled. If not, you may hit 'Find Above' to automatically repopulate the list; Else, you may manually assign it.
+5. The aircraft list will automatically update as it sees new, added and removed vehicles. Vehicle setup can be automatically setup by clicking "Update All Scripts", "Update All Particles", "Update All Weapons" buttons respectively.
+	- "Update All Scripts" or "Set Scripts" will do the following order:
+		- Creating an OWMLScript
+		- Creating a SAV_SyncScript_OWML, referencing OWML; Disabling the old SAV_SyncScript
+		- Create a HUDController_OWML, referencing the old HUDController; Disabling the old HUDController
+		- Updates the Extension Behaviours in the SaccEntity
+	- Update Particles or Set Particles will do the following
+		- Set each "World" particle to "Custom Space" with MapObject as reference.
+		- If 'Local Space Particles' and/or 'Custom Space Particles' are included, it will be updated as well.
+		- This will only affect each vehicle.
+	- "Update All Weapons" or "Set Weapons" will do the following order:
+		- Update each *DFUNC_AAM* to have World Parent set to *MapObject*
+		- Update each *DFUNC_AGM* to have World Parent set to *MapObject*
+		- Update each *DFUNC_Bomb* to have World Parent set to *MapObject*
+		- Update each *DFUNC_Rocket* to have World Parent set to *MapObject*
+	- Weapons covered are DFUNC_AAM, DFUNC_AGM, DFUNC_Rocket, DFUNC_Bomb
+	- DFUNC_Gun are covered in 'Update All Particles'
+	- Custom weapons may need to be manually setup. General rule here is any 'World' space particles should be in 'Custom' and is set to 'MapObject'. Any projectiles must be spawned inside MapObject.
+6. Automatically disable static objects by clicking 'Disable All Static'
+	- This will uncheck every single static object in the scene.
+	- OWML will not work properly with static batching since this works as a floating origin. Enabling it may result of object(s) looping through the scene.
+7. Automatically set the respawn position of your VRC Scene Descriptor by clicking "Set Respawn Position"
+	- This will set the VRC Scene Descriptor's respawn height to -9999999 in order to make sure you are traveling within the respawn bounds. (Be careful not to fall down off the map.)
+	- This will also set the respawn point to a ZHK_Player_Respawn_Handler object (SpawnArea/Spawn). You may rename this object as you wish, as well as place it wherever it is needed.
+8. Automatically set the Camera Render Distance by clicking "Set Cam Render Distance"
+	- This will only set the nearclip = .1, farclip = 900000.
+	- Further Camera setup may be needed if you need to setup the fake skybox and other things.
+	- Setting the main camera to a solid color is recommended if you want to extend your render distance.
+
+You may delete the object(s)
+	- "Planes/Put in Each Aircraft" as it is supposed to illustrate how to setup an aircraft manually.
+#### Updating an Existing old OWML Scene
+
+Assuming you are coming from an older version of the OWML, scripts may break if you simply just continue using it. Please do the following in the scene:
+
+1. Delete the UIObject (If you want to keep the ZHK_Cull Objects or anything else from UIObject, move it outside the UIObject.)
+2. Delete PlayerOWML Controller, PlayerParent.
+3. Delete SpawnArea or ZHK_Player_Respawn_Handler object
+4. Move everything outside of MapObject, delete the gameobject.
+5. Open the Open World Movement Logic Menu
+6. Load the prefab Object from Assets/FFR/OWML
+7. Click 'Place Prefab'
+8. Click 'Place Objects'
+9. Update All Scripts, Update All Particles, Update All Weapons as needed
+10. Update UIScript.
+
+Test as needed.
+#### Adding a new aircraft(s) or Updating an aircraft
+
+Assuming that you already have setup the OWML
+
+1.	Open the Open World Movement Logic Menu
+2. 	Click Update All Scripts, Update All Particles, and Update all Weapons to automatically append any missing setup on the aircraft
+3.  Click Update UIScript to update the Sync List in the UIScript.
+
+#### Updating x amount of Aircrafts
+
+If you have updated the amount of aircrafts you are using in your scene, you may need to update the UIScript's sync list.
+
+1. Open the Open World Movement Logic Menu
+2. Click Update UIScript
+3. You may verify it by viewing the UIScript object's Sync list.
 
 ### USING THE PREFAB
 
@@ -319,6 +412,15 @@ For the rest, follow the steps on setting up the prefab from steps 4 ~ 9.
 **PlayerUI** - Insert PlayerUIScript in here. It will be one of the global scripts that will manage your local player.
 
 **Spawn** - Insert the ZHK_PlayerRespawnHandler in here. This will serve as the player's reset trigger when respawning. An important note is this MUST NOT BE INSIDE THE MAP OBJECT as it will alter the player's original spawn coordinates and may cause undesirable results.
+
+**Custom Instruments / HUD** - If you have coded a custom HUD or Instruments, there's a possibility that the altimeter reports may be incorrect after the chunk cross. In order to fix this, you may get the y position of the vehicle via *SAV.CenterOfMass.y*, - the *SeaLevel*, - the *Y* position of the reference object (your map, or something else), multiplied then your conversion from meters to feet (3.28084).
+
+Example:
+```
+	Altitude = (SAV.CenterOfMass.position.y - SAV.SeaLevel - MapReference.position.y) * 3.28084f
+```
+
+Where SAV is the vehicle's SaccAirVehicle Object, MapReference is your map.
 
 ---
 ## Components
