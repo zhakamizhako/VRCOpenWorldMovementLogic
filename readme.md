@@ -123,10 +123,13 @@ If you are setting up for a new aircraft, it is highly recommended that you setu
 1. Make sure that the scene is in flying order.
 
 2. Access the Open World Movement Logic UI Menu through the Menu Bar -> SaccFlight -> Open World Movement Logic
+![illust3](images/OWML_Dropdown.PNG)
+![illust3](images/OWML_Installer.PNG)
 
 #### Existing Scenes without OWML
 
 1. Import OWMLPrefab from Assets/FFR/OWML into the UI Installer
+![illust3](images/OWML_prefab.PNG)
 2. Click 'Place Prefab' to automatically place the prefab in the correct hierarchy
 3. Click 'Place Objects' to automatically setup the hierarchy order/objects. 
 	- This will move any 'map' related objects inside MapObject. Planes, Terrains, etc.
@@ -143,10 +146,10 @@ If you are setting up for a new aircraft, it is highly recommended that you setu
 		- If 'Local Space Particles' and/or 'Custom Space Particles' are included, it will be updated as well.
 		- This will only affect each vehicle.
 	- "Update All Weapons" or "Set Weapons" will do the following order:
-		- Update each *DFUNC_AAM* to have World Parent set to *MapObject*
-		- Update each *DFUNC_AGM* to have World Parent set to *MapObject*
-		- Update each *DFUNC_Bomb* to have World Parent set to *MapObject*
-		- Update each *DFUNC_Rocket* to have World Parent set to *MapObject*
+		- Update each **DFUNC_AAM** to have World Parent set to **MapObject**
+		- Update each **DFUNC_AGM** to have World Parent set to **MapObject**
+		- Update each **DFUNC_Bomb** to have World Parent set to **MapObject**
+		- Update each **DFUNC_Rocket** to have World Parent set to **MapObject**
 	- Weapons covered are DFUNC_AAM, DFUNC_AGM, DFUNC_Rocket, DFUNC_Bomb
 	- DFUNC_Gun are covered in 'Update All Particles'
 	- Custom weapons may need to be manually setup. General rule here is any 'World' space particles should be in 'Custom' and is set to 'MapObject'. Any projectiles must be spawned inside MapObject.
@@ -446,6 +449,19 @@ The components here below are merely descriptions and a table of 'requirements'.
 |No|No|Recheck Interval| This will be applicable for players joining a little late as an emergency network call to ask the instance owner to have them assign a station.
 |No|No|Use Atmosphere| This will enable/disable Sacchan's Atmosphere Thinning on the air vehicles. Either disable this for space vehicles, or include a ridiculous amount on the vehicles themselves.
 |No|No|Player Follow Object| Adding an object in here will allow it to 'follow' your local player. By default, the fake skybox is added here.
+|No|No|Altitude Animator| Assign an Animator in this field to animate an object based on altitude
+|No|No|Altitude Parameter| Animator Parameter to adjust according to altitude
+|No|No|Maximum Altitude | Maximum Altitude for the animator parameter to reach 1f. (Note: 0 - lowest, 1 - highest)
+|No|No|Do Kinematic Check| Enable this option to set vehicles to 'kinematic' mode when you're far away to 'disable' physics.
+|No|No|Distance Kinematic Check| Specifies the maximum distance of the kinematic check. Any vehicles that's beyond this distance will be set to Kinematic.
+|No|No|Station Timeout| Seconds before unoccupied player stations be disabled.
+|No|No|Call Resyncs| Allows the instance owner to call every station to resynchronize (in case if the player wasn't attached to their respective station object. E.g. Avatar Station.) Enabling this will have an interval of 15 (or specified) seconds before it forces each player to occupy their stations. Will only apply to players that are not inside a vehicle.
+|No|No|OWML Slider|Slider Object to listen changes from for the Distance Slider. Adjusting a Slider Object and a text will allow you to change the chunk distance in game time.
+|No|No|OWML Slider Text| Text Object for the Slider.
+|No|No|Disable Vehicles Upon Upload| This will allow the UIScript to disable every vehicle when uploading which will allow you to save performance overhead during upload. Keeping this option enabled is advised. Note that this will not affect the vehicles in game time.
+|No|No|Do Player Skybox|Allows you to enable skybox changing atmosphere even when you're not in vehicle. (BETA feature. )
+|Yes|Yes|Debugger|The Debugger Gameobject.
+
 
 ### ZHK_OpenWorldMovementLogicScript
 
@@ -506,10 +522,8 @@ This tool allows you to auto 'static' aircrafts when you are further away from t
 
 
 ### ZHK_ModifiedObjectSync
-**Caution: WIP**
 This tool will allow you to synchronize objects for map space instead of world space. Slap this to a gameobject, remove the VRC Object Sync from the object and call it a day.
 
 |Item|Description|
 |---|---|
 |Use Local|Use Local Space (keep this on)
-|Update Rate| The Update rate in seconds before sending the new coordinates to each players. (Needs Tweaking)|
