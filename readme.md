@@ -111,11 +111,12 @@ We'll assume that you've already downloaded the latest SDK, setup the world requ
 **I cannot guarantee that this will work for older versions. If you want to try, please backup your project beforehand.**
 
 You can integrate the system in a few ways
-- Use the prefab in Assets/FFR/OWML; 
-- Load OWML_Sample Scene file
-- Make from scratch. (If you want to, but i highly suggest not to.)
+- A. Use the Installer (Highly Recommended)
+- B. Use the prefab in Assets/FFR/OWML
+- C. Load OWML_Sample Scene file
+- D. Make from scratch. (If you want to, but i highly suggest not to.)
 
-### USING THE INSTALLER
+## A. USING THE INSTALLER
 
 The new UI Installer (thanks YUXI!) is the most preferrable way in order to setup your scene with existing and new aircrafts; as well as an existing and new scenes; Since this will save you the hassle of setting up each and every single aircraft and scene(s). As you use it, you may still refer to the guides below when troubleshooting.
 
@@ -137,30 +138,37 @@ If you are setting up for a new aircraft, it is highly recommended that you setu
 	- This is not supposed to break your hierarchy order. If it does, please contact me.
 4. The 'Step 3' in the UI Installer should be automatically be filled. If not, you may hit 'Find Above' to automatically repopulate the list; Else, you may manually assign it.
 5. The aircraft list will automatically update as it sees new, added and removed vehicles. Vehicle setup can be automatically setup by clicking "Update All Scripts", "Update All Particles", "Update All Weapons" buttons respectively.
-	- "Update All Scripts" or "Set Scripts" will do the following order:
-		- Creating an OWMLScript
-		- Creating a SAV_SyncScript_OWML, referencing OWML; Disabling the old SAV_SyncScript
-		- Create a HUDController_OWML, referencing the old HUDController; Disabling the old HUDController
-		- Updates the Extension Behaviours in the SaccEntity
-	- Update Particles or Set Particles will do the following
-		- Set each "World" particle to "Custom Space" with MapObject as reference.
-		- If 'Local Space Particles' and/or 'Custom Space Particles' are included, it will be updated as well.
-		- This will only affect each vehicle.
-	- "Update All Weapons" or "Set Weapons" will do the following order:
-		- Update each **DFUNC_AAM** to have World Parent set to **MapObject**
-		- Update each **DFUNC_AGM** to have World Parent set to **MapObject**
-		- Update each **DFUNC_Bomb** to have World Parent set to **MapObject**
-		- Update each **DFUNC_Rocket** to have World Parent set to **MapObject**
-	- Weapons covered are DFUNC_AAM, DFUNC_AGM, DFUNC_Rocket, DFUNC_Bomb
-	- DFUNC_Gun are covered in 'Update All Particles'
-	- Custom weapons may need to be manually setup. General rule here is any 'World' space particles should be in 'Custom' and is set to 'MapObject'. Any projectiles must be spawned inside MapObject.
-6. Automatically disable static objects by clicking 'Disable All Static'
+
+![updateverything](images/update_weapons_etc.PNG)
+
+- "Update All Scripts" or "Set Scripts" will do the following order:
+	- Creating an OWMLScript
+	- Creating a SAV_SyncScript_OWML, referencing OWML; Disabling the old SAV_SyncScript
+	- Create a HUDController_OWML, referencing the old HUDController; Disabling the old HUDController
+	- Updates the Extension Behaviours in the SaccEntity
+- Update Particles or Set Particles will do the following
+	- Set each "World" particle to "Custom Space" with MapObject as reference.
+	- If 'Local Space Particles' and/or 'Custom Space Particles' are included, it will be updated as well.
+	- This will only affect each vehicle.
+- "Update All Weapons" or "Set Weapons" will do the following order:
+	- Update each **DFUNC_AAM** to have World Parent set to **MapObject**
+	- Update each **DFUNC_AGM** to have World Parent set to **MapObject**
+	- Update each **DFUNC_Bomb** to have World Parent set to **MapObject**
+	- Update each **DFUNC_Rocket** to have World Parent set to **MapObject**
+- Weapons covered are DFUNC_AAM, DFUNC_AGM, DFUNC_Rocket, DFUNC_Bomb
+- DFUNC_Gun are covered in 'Update All Particles'
+- Custom weapons may need to be manually setup. General rule here is any 'World' space particles should be in 'Custom' and is set to 'MapObject'. Any projectiles must be spawned inside MapObject.
+7. Update the UIScript by clicking **Update UIScript** Button in the UI.
+
+![updateverything](images/updateUIScript.png)
+
+8. Automatically disable static objects by clicking 'Disable All Static'
 	- This will uncheck every single static object in the scene.
 	- OWML will not work properly with static batching since this works as a floating origin. Enabling it may result of object(s) looping through the scene.
-7. Automatically set the respawn position of your VRC Scene Descriptor by clicking "Set Respawn Position"
+9. Automatically set the respawn position of your VRC Scene Descriptor by clicking "Set Respawn Position"
 	- This will set the VRC Scene Descriptor's respawn height to -9999999 in order to make sure you are traveling within the respawn bounds. (Be careful not to fall down off the map.)
 	- This will also set the respawn point to a ZHK_Player_Respawn_Handler object (SpawnArea/Spawn). You may rename this object as you wish, as well as place it wherever it is needed.
-8. Automatically set the Camera Render Distance by clicking "Set Cam Render Distance"
+10. Automatically set the Camera Render Distance by clicking "Set Cam Render Distance"
 	- This will only set the nearclip = .1, farclip = 900000.
 	- Further Camera setup may be needed if you need to setup the fake skybox and other things.
 	- Setting the main camera to a solid color is recommended if you want to extend your render distance.
@@ -189,7 +197,12 @@ Assuming that you already have setup the OWML
 
 1.	Open the Open World Movement Logic Menu
 2. 	Click Update All Scripts, Update All Particles, and Update all Weapons to automatically append any missing setup on the aircraft
-3.  Click Update UIScript to update the Sync List in the UIScript.
+
+![updateverything](images/owml_update_everything.png)
+
+4.  Click Update UIScript to update the Sync List in the UIScript.
+
+![updateverything](images/updateUIScript.png)
 
 #### Updating x amount of Aircrafts
 
@@ -197,9 +210,12 @@ If you have updated the amount of aircrafts you are using in your scene, you may
 
 1. Open the Open World Movement Logic Menu
 2. Click Update UIScript
-3. You may verify it by viewing the UIScript object's Sync list.
 
-### USING THE PREFAB
+![updateverything](images/updateUIScript.png)
+
+4. You may verify it by viewing the UIScript object's Sync list.
+
+## B. USING THE PREFAB
 
 This will apply for both creating  a world from scratch and for worlds that needs to adapt the OWML.
 1. Make sure that the scene is in flying order.
@@ -303,12 +319,12 @@ This will apply for both creating  a world from scratch and for worlds that need
 
 9. Test. Optimize. Remove any unnecessary objects. 
 
-## Using the Scene
+## C. Using the Scene
 
 You can use the scene (OWML_Sample) as your basis, example or when making the world. When extracting the prefab from it, make sure you assign each aircraft's OWMLScript, SyncScript, UIScript and the Map Object of the UIScript.
 
 
-## Making from scratch
+## D. Making from scratch
 
 If there is an immediate need to create everything from scratch, you will need to setup your hierarchy this way.
 ```
