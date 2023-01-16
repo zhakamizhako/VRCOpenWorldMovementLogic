@@ -115,9 +115,9 @@ public class ZHK_UIScript : UdonSharpBehaviour
 
     [Tooltip("Useful before uploading when you have like > 10 vehicles.")]public bool DisableVehiclesUponUpload = true;
 
-    public bool initialized = false;
-    public float initializedTimer = 15f;
-    public float initTimer = 0f;
+    [HideInInspector]public bool initialized = false;
+    [HideInInspector]public float initializedTimer = 15f;
+    [HideInInspector]public float initTimer = 0f;
     
     public bool doPlayerSkybox = false;
     public GameObject Debugger;
