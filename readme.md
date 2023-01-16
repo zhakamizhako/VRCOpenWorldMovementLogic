@@ -101,7 +101,7 @@ REQUIREMENTS:
 - VRCSDK3-WORLD-2022.06.03.00.03_Public or onwards (https://vrchat.com/home/download)
 - Requires Udonsharp from the CreatorCompanion.  (Download via https://vrchat.com/home/download)
 - CyanEmu or VRChat Client Simulator 1.1.3 (Check Creator Companion)
-- SaccFlight 1.6 (https://github.com/Sacchan-VRC/SaccFlightAndVehicles)
+- SaccFlight 1.6 or ownards (https://github.com/Sacchan-VRC/SaccFlightAndVehicles)
 - OWML (Get from releases, https://github.com/zhakamizhako/VRCOpenWorldMovementLogic/releases)
 	
 	
