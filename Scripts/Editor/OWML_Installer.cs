@@ -373,8 +373,10 @@ public class OWML_Installer : EditorWindow
             if (x == OWMLSyncScriptComponent) foundOWMLSyncScript = true;
             if (x == OWMLComponent) foundOWML = true;
         }
-
+        EditorUtility.SetDirty(entityControl);
         UdonSharpBehaviour[] ExtensionUdonBehaviours = new UdonSharpBehaviour[entityControl.ExtensionUdonBehaviours.Length + (!foundOWML ? 1 : 0)];
+        
+        
         int idx = 0;
         foreach (var each in entityControl.ExtensionUdonBehaviours)
         {
