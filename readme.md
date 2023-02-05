@@ -18,6 +18,7 @@ https://discord.gg/kjPhHSfUDY
 
 
 # IMPORTANT
+**BACKUP YOUR PROJECTS**
 
 Before using this system; Note the downsides.
 
@@ -36,14 +37,26 @@ You will probably need to:
 >	- Use the included modified Object Sync
 >	- QVPen usage may only work best near the spawn for now. Try not to cross the first chunk.
 
-Todo
->	- QVpen compatibility.
-
 Notes
 >	- When creating an aircraft, uncheck repeating world in the SaccAirVehicle.
 
 # Changelog 
 ```
+(v1.3)
+- Adaptation for SaccFlight 1.61, updated Sync Script for 1.61
+- Added Debugger - Press CTRL + ALT + O to toggle the debugger, pageup/pagedown to scroll through
+- Improved Ground player OWML, Player Station Assignment
+- Optimization on Player Stations
+- Added Station Timeout to auto-disable ZHK_Stations that aren't being used.
+- Added Recheck Interval to resynchronize players that are not in their 'proper' stations
+- Added OWML distance Slider
+- Added automatic Kinematic Checker in UIScript
+- Added Altitude Animator for Atmosphere detection
+- Added YUXI's Easy UI Installer for OWML
+- Planes will be automatically disabled during upload mode (Will not affect actual world; This is for performance optimization during upload time since all vehicles will be active)
+- Changed the "ZHK_ModifiedObjectSync" to use 'Continuous' instead of manual sync
+- 
+
 (v1.2)
 - Adaption for SaccFlight 1.6, added namespace changes
 - Added support for SaccGroundVehicles
@@ -89,7 +102,7 @@ REQUIREMENTS:
 - VRCSDK3-WORLD-2022.06.03.00.03_Public or onwards (https://vrchat.com/home/download)
 - Requires Udonsharp from the CreatorCompanion.  (Download via https://vrchat.com/home/download)
 - CyanEmu or VRChat Client Simulator 1.1.3 (Check Creator Companion)
-- SaccFlight 1.6 (https://github.com/Sacchan-VRC/SaccFlightAndVehicles)
+- SaccFlight 1.6 or ownards (https://github.com/Sacchan-VRC/SaccFlightAndVehicles)
 - OWML (Get from releases, https://github.com/zhakamizhako/VRCOpenWorldMovementLogic/releases)
 	
 	
@@ -98,11 +111,111 @@ We'll assume that you've already downloaded the latest SDK, setup the world requ
 **I cannot guarantee that this will work for older versions. If you want to try, please backup your project beforehand.**
 
 You can integrate the system in a few ways
-- Use the prefab in Assets/FFR/OWML; 
-- Load OWML_Sample Scene file
-- Make from scratch. (If you want to, but i highly suggest not to.)
+- A. Use the Installer (Highly Recommended)
+- B. Use the prefab in Assets/FFR/OWML
+- C. Load OWML_Sample Scene file
+- D. Make from scratch. (If you want to, but i highly suggest not to.)
 
-### USING THE PREFAB
+## A. USING THE INSTALLER
+
+The new UI Installer (thanks YUXI!) is the most preferrable way in order to setup your scene with existing and new aircrafts; as well as an existing and new scenes; Since this will save you the hassle of setting up each and every single aircraft and scene(s). As you use it, you may still refer to the guides below when troubleshooting.
+
+If you are setting up for a new aircraft, it is highly recommended that you setup this aircraft in flying order first before implementing OWML into it.
+
+1. Make sure that the scene is in flying order.
+
+2. Access the Open World Movement Logic UI Menu through the Menu Bar -> SaccFlight -> Open World Movement Logic
+![illust3](images/OWML_Dropdown.PNG)
+![illust3](images/OWML_Installer.PNG)
+
+#### Existing Scenes without OWML
+
+1. Import OWMLPrefab from Assets/FFR/OWML into the UI Installer
+![illust3](images/OWML_prefab.PNG)
+2. Click 'Place Prefab' to automatically place the prefab in the correct hierarchy
+3. Click 'Place Objects' to automatically setup the hierarchy order/objects. 
+	- This will move any 'map' related objects inside MapObject. Planes, Terrains, etc.
+	- This is not supposed to break your hierarchy order. If it does, please contact me.
+4. The 'Step 3' in the UI Installer should be automatically be filled. If not, you may hit 'Find Above' to automatically repopulate the list; Else, you may manually assign it.
+5. The aircraft list will automatically update as it sees new, added and removed vehicles. Vehicle setup can be automatically setup by clicking "Update All Scripts", "Update All Particles", "Update All Weapons" buttons respectively.
+
+![updateverything](images/update_weapons_etc.PNG)
+
+- "Update All Scripts" or "Set Scripts" will do the following order:
+	- Creating an OWMLScript
+	- Creating a SAV_SyncScript_OWML, referencing OWML; Disabling the old SAV_SyncScript
+	- Create a HUDController_OWML, referencing the old HUDController; Disabling the old HUDController
+	- Updates the Extension Behaviours in the SaccEntity
+- Update Particles or Set Particles will do the following
+	- Set each "World" particle to "Custom Space" with MapObject as reference.
+	- If 'Local Space Particles' and/or 'Custom Space Particles' are included, it will be updated as well.
+	- This will only affect each vehicle.
+- "Update All Weapons" or "Set Weapons" will do the following order:
+	- Update each **DFUNC_AAM** to have World Parent set to **MapObject**
+	- Update each **DFUNC_AGM** to have World Parent set to **MapObject**
+	- Update each **DFUNC_Bomb** to have World Parent set to **MapObject**
+	- Update each **DFUNC_Rocket** to have World Parent set to **MapObject**
+- Weapons covered are DFUNC_AAM, DFUNC_AGM, DFUNC_Rocket, DFUNC_Bomb
+- DFUNC_Gun are covered in 'Update All Particles'
+- Custom weapons may need to be manually setup. General rule here is any 'World' space particles should be in 'Custom' and is set to 'MapObject'. Any projectiles must be spawned inside MapObject.
+7. Update the UIScript by clicking **Update UIScript** Button in the UI.
+
+![updateverything](images/updateUIScript.png)
+
+8. Automatically disable static objects by clicking 'Disable All Static'
+	- This will uncheck every single static object in the scene.
+	- OWML will not work properly with static batching since this works as a floating origin. Enabling it may result of object(s) looping through the scene.
+9. Automatically set the respawn position of your VRC Scene Descriptor by clicking "Set Respawn Position"
+	- This will set the VRC Scene Descriptor's respawn height to -9999999 in order to make sure you are traveling within the respawn bounds. (Be careful not to fall down off the map.)
+	- This will also set the respawn point to a ZHK_Player_Respawn_Handler object (SpawnArea/Spawn). You may rename this object as you wish, as well as place it wherever it is needed.
+10. Automatically set the Camera Render Distance by clicking "Set Cam Render Distance"
+	- This will only set the nearclip = .1, farclip = 900000.
+	- Further Camera setup may be needed if you need to setup the fake skybox and other things.
+	- Setting the main camera to a solid color is recommended if you want to extend your render distance.
+
+You may delete the object(s)
+	- "Planes/Put in Each Aircraft" as it is supposed to illustrate how to setup an aircraft manually.
+#### Updating an Existing old OWML Scene
+
+Assuming you are coming from an older version of the OWML, scripts may break if you simply just continue using it. Please do the following in the scene:
+
+1. Delete the UIObject (If you want to keep the ZHK_Cull Objects or anything else from UIObject, move it outside the UIObject.)
+2. Delete PlayerOWML Controller, PlayerParent.
+3. Delete SpawnArea or ZHK_Player_Respawn_Handler object
+4. Move everything outside of MapObject, delete the gameobject.
+5. Open the Open World Movement Logic Menu
+6. Load the prefab Object from Assets/FFR/OWML
+7. Click 'Place Prefab'
+8. Click 'Place Objects'
+9. Update All Scripts, Update All Particles, Update All Weapons as needed
+10. Update UIScript.
+
+Test as needed.
+#### Adding a new aircraft(s) or Updating an aircraft
+
+Assuming that you already have setup the OWML
+
+1.	Open the Open World Movement Logic Menu
+2. 	Click Update All Scripts, Update All Particles, and Update all Weapons to automatically append any missing setup on the aircraft
+
+![updateverything](images/owml_update_everything.png)
+
+4.  Click Update UIScript to update the Sync List in the UIScript.
+
+![updateverything](images/updateUIScript.png)
+
+#### Updating x amount of Aircrafts
+
+If you have updated the amount of aircrafts you are using in your scene, you may need to update the UIScript's sync list.
+
+1. Open the Open World Movement Logic Menu
+2. Click Update UIScript
+
+![updateverything](images/updateUIScript.png)
+
+4. You may verify it by viewing the UIScript object's Sync list.
+
+## B. USING THE PREFAB
 
 This will apply for both creating  a world from scratch and for worlds that needs to adapt the OWML.
 1. Make sure that the scene is in flying order.
@@ -206,12 +319,12 @@ This will apply for both creating  a world from scratch and for worlds that need
 
 9. Test. Optimize. Remove any unnecessary objects. 
 
-## Using the Scene
+## C. Using the Scene
 
 You can use the scene (OWML_Sample) as your basis, example or when making the world. When extracting the prefab from it, make sure you assign each aircraft's OWMLScript, SyncScript, UIScript and the Map Object of the UIScript.
 
 
-## Making from scratch
+## D. Making from scratch
 
 If there is an immediate need to create everything from scratch, you will need to setup your hierarchy this way.
 ```
@@ -320,6 +433,15 @@ For the rest, follow the steps on setting up the prefab from steps 4 ~ 9.
 
 **Spawn** - Insert the ZHK_PlayerRespawnHandler in here. This will serve as the player's reset trigger when respawning. An important note is this MUST NOT BE INSIDE THE MAP OBJECT as it will alter the player's original spawn coordinates and may cause undesirable results.
 
+**Custom Instruments / HUD** - If you have coded a custom HUD or Instruments, there's a possibility that the altimeter reports may be incorrect after the chunk cross. In order to fix this, you may get the y position of the vehicle via *SAV.CenterOfMass.y*, - the *SeaLevel*, - the *Y* position of the reference object (your map, or something else), multiplied then your conversion from meters to feet (3.28084).
+
+Example:
+```
+	Altitude = (SAV.CenterOfMass.position.y - SAV.SeaLevel - MapReference.position.y) * 3.28084f
+```
+
+Where SAV is the vehicle's SaccAirVehicle Object, MapReference is your map.
+
 ---
 ## Components
 The components here below are merely descriptions and a table of 'requirements'. You may not need to reassign some of them (apart from the ZHK_OpenWorldMovementLogic) if you are using the scene or the existing prefab.
@@ -344,6 +466,19 @@ The components here below are merely descriptions and a table of 'requirements'.
 |No|No|Recheck Interval| This will be applicable for players joining a little late as an emergency network call to ask the instance owner to have them assign a station.
 |No|No|Use Atmosphere| This will enable/disable Sacchan's Atmosphere Thinning on the air vehicles. Either disable this for space vehicles, or include a ridiculous amount on the vehicles themselves.
 |No|No|Player Follow Object| Adding an object in here will allow it to 'follow' your local player. By default, the fake skybox is added here.
+|No|No|Altitude Animator| Assign an Animator in this field to animate an object based on altitude
+|No|No|Altitude Parameter| Animator Parameter to adjust according to altitude
+|No|No|Maximum Altitude | Maximum Altitude for the animator parameter to reach 1f. (Note: 0 - lowest, 1 - highest)
+|No|No|Do Kinematic Check| Enable this option to set vehicles to 'kinematic' mode when you're far away to 'disable' physics.
+|No|No|Distance Kinematic Check| Specifies the maximum distance of the kinematic check. Any vehicles that's beyond this distance will be set to Kinematic.
+|No|No|Station Timeout| Seconds before unoccupied player stations be disabled.
+|No|No|Call Resyncs| Allows the instance owner to call every station to resynchronize (in case if the player wasn't attached to their respective station object. E.g. Avatar Station.) Enabling this will have an interval of 15 (or specified) seconds before it forces each player to occupy their stations. Will only apply to players that are not inside a vehicle.
+|No|No|OWML Slider|Slider Object to listen changes from for the Distance Slider. Adjusting a Slider Object and a text will allow you to change the chunk distance in game time.
+|No|No|OWML Slider Text| Text Object for the Slider.
+|No|No|Disable Vehicles Upon Upload| This will allow the UIScript to disable every vehicle when uploading which will allow you to save performance overhead during upload. Keeping this option enabled is advised. Note that this will not affect the vehicles in game time.
+|No|No|Do Player Skybox|Allows you to enable skybox changing atmosphere even when you're not in vehicle. (BETA feature. )
+|Yes|Yes|Debugger|The Debugger Gameobject.
+
 
 ### ZHK_OpenWorldMovementLogicScript
 
@@ -404,10 +539,8 @@ This tool allows you to auto 'static' aircrafts when you are further away from t
 
 
 ### ZHK_ModifiedObjectSync
-**Caution: WIP**
 This tool will allow you to synchronize objects for map space instead of world space. Slap this to a gameobject, remove the VRC Object Sync from the object and call it a day.
 
 |Item|Description|
 |---|---|
 |Use Local|Use Local Space (keep this on)
-|Update Rate| The Update rate in seconds before sending the new coordinates to each players. (Needs Tweaking)|
