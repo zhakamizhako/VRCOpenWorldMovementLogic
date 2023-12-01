@@ -1,3 +1,4 @@
+
 using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
@@ -14,6 +15,7 @@ using VRC.Udon.Common.Interfaces;
 
 // TODO: Further Optimization & smoother player movement
 [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
+
 public class ZHK_OWML_Station : UdonSharpBehaviour
 {
 [VRC.Udon.Serialization.OdinSerializer.OdinSerialize] /* UdonSharp auto-upgrade: serialization */     public VRCPlayerApi Player;
@@ -74,6 +76,7 @@ public class ZHK_OWML_Station : UdonSharpBehaviour
                     stationObject.UseStation(Networking.LocalPlayer);
                 }
             }
+
         }
         get => _inVehicle;
     }
@@ -90,13 +93,13 @@ public class ZHK_OWML_Station : UdonSharpBehaviour
 
     public void register(VRCPlayerApi z)
     {
+        Debug.Log("[OWML Station -"+gameObject.name+"] Register Called.");
         if (z.playerId == Networking.LocalPlayer.playerId && UIScript.stationObject != null && UIScript.stationObject != this)
         {
             Debug.Log("Person has Station Object in UIScript "+gameObject.name);
             Debug.Log("Aborting Assignment on station " +gameObject.name+" due to a duplicate risk");
             return;
         }
-
         // force = false;
         // Start stuff
         // UIScript = OWML_Player.UIScript;
@@ -144,6 +147,7 @@ public class ZHK_OWML_Station : UdonSharpBehaviour
 
     public void forceRegister()
     {
+        Debug.Log("[OWML Station -"+gameObject.name+"] Force Register Called.");
         Debug.Log("Force Register Received -"+Networking.LocalPlayer.playerId);
         // force = true;
         register(Networking.LocalPlayer);
@@ -151,6 +155,7 @@ public class ZHK_OWML_Station : UdonSharpBehaviour
 
     public void broadcastRegistered()
     {
+        Debug.Log("[OWML Station -"+gameObject.name+"] Registered Broadcast called.");
         Debug.Log(gameObject.name +" registered for "+ PlayerID);
         gameObject.SetActive(true);
         
@@ -168,29 +173,37 @@ public class ZHK_OWML_Station : UdonSharpBehaviour
         {
             RequestSerialization(); 
             SendCustomNetworkEvent(NetworkEventTarget.All, nameof(publicUnregister));
-            SendCustomEventDelayedSeconds(nameof(delaySetOwner), 1);
+            SendCustomEventDelayedSeconds(nameof(delaySetOwner), 2);
+            SendCustomEventDelayedSeconds(nameof(delayDisable), 3);
         }
+    }
+
+    public void delayDisable()
+    {
+        Debug.Log("[OWML Station -"+gameObject.name+"] Disabling Object...");
         gameObject.SetActive(false);
     }
 
     public void delaySetOwner()
     {
+        Debug.Log("[OWML STATION-"+gameObject.name+"]Returning Object to Player Manager Owner");
         Networking.SetOwner(Networking.GetOwner(OWML_Player.gameObject), gameObject);
     }
-
     public void publicUnregister()
     {
+        Debug.Log("[OWML Station -"+gameObject.name+"] Public Unregister called.");
         inVehicle = false;
         CurrentPlayerPosition = Vector3.zero;
         Player = null;
         PlayerID = -1;
         playerSet = false;
-        gameObject.SetActive(false);
+        SendCustomEventDelayedSeconds(nameof(delayDisable), 3);
+        // gameObject.SetActive(false);
     }
 
     public override void OnPlayerRespawn(VRCPlayerApi player)
     {
-        if (Networking.IsOwner(gameObject))
+        if (Networking.IsOwner(gameObject) && UIScript.stationObject == this)
         {
             inVehicle = false;
             PlayerID = Networking.LocalPlayer.playerId; // force replacing it.
@@ -239,6 +252,7 @@ public class ZHK_OWML_Station : UdonSharpBehaviour
 
     public void OwnershipRecheck()
     {
+        Debug.Log("[OWML Station -"+gameObject.name+"] Ownership Recheck Called.");
         Debug.Log("Player ID:" + Networking.LocalPlayer.playerId + "- Ownership recheck : HAS STATION:"+(UIScript.stationObject? "Yes" : "No"+ "And do I own it? "+ (Networking.IsOwner(gameObject))));
         gameObject.SetActive(true);
         if (UIScript.stationObject == null && Networking.IsOwner(gameObject))
@@ -249,6 +263,7 @@ public class ZHK_OWML_Station : UdonSharpBehaviour
 
     public void broadcastRefreshSeat()
     {
+        Debug.Log("[OWML Station -"+gameObject.name+"] Broadcast Refresh Seat Called");
         SendCustomEventDelayedSeconds(nameof(refreshSeat),4);
     }
     public void refreshSeat()
@@ -256,7 +271,6 @@ public class ZHK_OWML_Station : UdonSharpBehaviour
         gameObject.SetActive(true);
         timeoutTimer = 0;
     }
-
     public void useSeat()
     {
         if(Player == Networking.LocalPlayer)
@@ -282,6 +296,14 @@ public class ZHK_OWML_Station : UdonSharpBehaviour
         }
     }
 
+    public override void OnPlayerLeft(VRCPlayerApi player)
+    {
+        if (player == Player && Networking.IsOwner(gameObject) && UIScript.stationObject != this)
+        {
+            unregister();
+        }
+    }
+
     public override void OnStationExited(VRCPlayerApi player)
     {
         Debug.Log(player.displayName+ " Entered a vehicle or something else.");
@@ -291,6 +313,7 @@ public class ZHK_OWML_Station : UdonSharpBehaviour
 
     public void checkIfPlayerPresent() // function call to 'synchronize' the player that's not in a station locally
     {
+        Debug.Log("[OWML Station -"+gameObject.name+"] Check Player if Present Called.");
         if (Player != null && PlayerID != -1 && !inVehicle)
         {
             // stationObject.PlayerMobility = VRCStation.Mobility.Mobile;
@@ -301,6 +324,7 @@ public class ZHK_OWML_Station : UdonSharpBehaviour
 
     public void checkOwner() // function call to 'synchronize' the player that's not in a station, broadcasts to the owner that he has to be in one.
     {
+        Debug.Log("[OWML Station -"+gameObject.name+"] Checking Owner Called.");
         if (Networking.IsOwner(gameObject) && UIScript.stationObject==this)
         {
             if(Player==null)  Player = Networking.LocalPlayer;
@@ -316,6 +340,14 @@ public class ZHK_OWML_Station : UdonSharpBehaviour
     
     void Update()
     {
+        if (UIScript.showDebugPlayerPos)
+        {
+            if(!IndicatorDebug.activeSelf)IndicatorDebug.SetActive(true);
+        }
+        else
+        {
+            if(IndicatorDebug.activeSelf)IndicatorDebug.SetActive(false);
+        }
         if (PlayerID == -1 && UIScript.stationObject != this)
         {
             timeoutTimer = timeoutTimer + Time.deltaTime;
